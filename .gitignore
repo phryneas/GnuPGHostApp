@@ -1,0 +1,11 @@
+src/github.com
+tmp/
+
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+.glide/
+.idea/
