@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"NativeMessagingHost"
+	"github.com/proglottis/gpgme"
 )
 
 func main() {
@@ -12,6 +13,14 @@ func main() {
 	// XXXX{"action":"qwe","data":"ads"}'
 
 	logger := log.New(os.Stderr, "GnuPGHostApp: ", log.Lshortfile)
+
+	recipients, err := gpgme.FindKeys("e", false)
+	if err != nil {
+		logger.Fatalf("encountered error: %s", err)
+	}
+	for _, val := range recipients {
+		logger.Printf("%s", val.UserIDs().Name())
+	}
 
 	for {
 		request, err := NativeMessagingHost.ReadRequest(os.Stdin)
