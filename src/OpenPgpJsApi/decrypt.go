@@ -53,12 +53,15 @@ func (r OpenPgpJsDecryptRequest) Execute() (result OpenPgpJsDecryptResult, err e
 	ctx, err := gpgme.New()
 	signature, err := gpgme.NewDataReader(strings.NewReader(r.signature))
 	handleErr(err)
+	defer signature.Close()
+
 	message, err := gpgme.NewDataReader(strings.NewReader(r.message))
 	handleErr(err)
-
+	defer message.Close()
 
 	plain, err := gpgme.NewData()
 	handleErr(err)
+	defer plain.Close()
 
 	var signatures []gpgme.Signature
 	if (r.signature != ""){
