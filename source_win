@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+export GOPATH=$(cd $(dirname $0); pwd)
+
+#windows, msys2: 
+#pacman -S mingw-w64-x86_64-gpgme
+#pacman -S mingw-w64-x86_64-toolchain
+# in the end, instead of the pacman-gpgme, I used gpgme1.9 from the tarball. built with mingw64, but installed into the /C/msys2/usr prefix. definitely not clean, but works for now
+
+PATH=$PATH:/mingw64/bin

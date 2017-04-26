@@ -12,7 +12,7 @@ func TestResponse_Send(t *testing.T) {
 	response := &Response{Status: "test", Data: "testData"}
 	var buffer bytes.Buffer
 	// send
-	err := response.Send(&buffer)
+	err := SendResponse(response, &buffer)
 	if err != nil {
 		t.Errorf("got error sending: %s", err)
 	}

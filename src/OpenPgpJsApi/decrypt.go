@@ -7,21 +7,23 @@ import (
 	"bytes"
 )
 
+// @see https://openpgpjs.org/openpgpjs/doc/module-openpgp.html#.decrypt
+
 // unused options from the openpgp.js API:
-// privateKey  //Key 	(optional) private key with decrypted secret key data or session key
-// sessionKey //Object 	(optional) session key in the form: { data:Uint8Array, algorithm:String }
-// password   string //String 	(optional) single password to decrypt the message
-// publicKeys []string //Key | Array.<Key> 	(optional) array of public keys or single key, to verify signatures
+// privateKey  //Key 	(optional) private key with decrypted secret key Data or session key
+// sessionKey //Object 	(optional) session key in the form: { Data:Uint8Array, algorithm:String }
+// password   string //String 	(optional) single password to decrypt the Message
+// PublicKeys []string //Key | Array.<Key> 	(optional) array of public keys or single key, to verify signatures
 
 type OpenPgpJsDecryptRequest struct {
-	message string  `json:"message"`
-	//Message 	the message object with the encrypted data
+	message string  `json:"Message"`
+	//Message 	the Message object with the encrypted Data
 	// passed as Armored String
 	format string `json:"format"`
-	//String 	(optional) return data format either as 'utf8' or 'binary'
+	//String 	(optional) return Data format either as 'utf8' or 'binary'
 	// one of 'utf8' or 'binary'
-	signature string  `json:"signature"`
-	//Signature 	(optional) detached signature for verification
+	signature string  `json:"Signature"`
+	//Signature 	(optional) Detached Signature for verification
 	// passed as Armored String
 }
 
@@ -36,19 +38,15 @@ type OpenPgpJsDecryptResult struct {
 	dataBytes  []uint8
 }
 
-func handleErr(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-func (r OpenPgpJsDecryptRequest) Execute() (result OpenPgpJsDecryptResult, err error) {
+func (r OpenPgpJsDecryptRequest) Execute() (result RequestResult, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			result = OpenPgpJsDecryptResult{}
+			result = nil
 			err = r.(error)
 		}
 	}()
+
+	res := OpenPgpJsDecryptResult{}
 
 	ctx, err := gpgme.New()
 	signature, err := gpgme.NewDataReader(strings.NewReader(r.signature))
@@ -77,7 +75,7 @@ func (r OpenPgpJsDecryptRequest) Execute() (result OpenPgpJsDecryptResult, err e
 
 	for _, signature := range signatures {
 		validity := (signature.Summary & gpgme.SigSumGreen) != 0
-		result.signatures = append(result.signatures, OpenPgpJsDecryptSignature{keyid: signature.Fingerprint, valid: validity})
+		res.signatures = append(res.signatures, OpenPgpJsDecryptSignature{keyid: signature.Fingerprint, valid: validity})
 	}
 
 
@@ -85,6 +83,6 @@ func (r OpenPgpJsDecryptRequest) Execute() (result OpenPgpJsDecryptResult, err e
 
 	buf := new(bytes.Buffer)
 	io.Copy(buf, plain)
-	result.dataString = buf.String()
-	return;
+	res.dataString = buf.String()
+	return res, nil
 }
