@@ -9,10 +9,10 @@ import (
 )
 
 func TestResponse_Send(t *testing.T) {
-	response := &Response{Status: "test", Data: "testData"}
+	response := &Response{Status: "test"}
 	var buffer bytes.Buffer
 	// send
-	err := SendResponse(response, &buffer)
+	err := response.Send(&buffer)
 	if err != nil {
 		t.Errorf("got error sending: %s", err)
 	}
@@ -32,7 +32,7 @@ func TestResponse_Send(t *testing.T) {
 		t.Errorf("could not read json from buffer: %s", err)
 	}
 	// validate json
-	if testResponse.Status != response.Status || testResponse.Data != response.Data {
+	if testResponse.Status != response.Status {
 		t.Errorf("sent and received data is not equal. sent: %s, received: %s", response, testResponse)
 	}
 }

@@ -85,8 +85,6 @@ func (r OpenPgpJsEncryptRequest) Execute() (result OpenPgpJsEncryptResult, err e
 	buf := new(bytes.Buffer)
 	io.Copy(buf, cipher)
 
-	fmt.Println( buf.String())
-
 	if r.Armor {
 		result.Data = buf.String()
 	} else {

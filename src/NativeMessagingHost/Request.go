@@ -41,3 +41,15 @@ func PrepareDecoder(stdIn io.Reader) (decoder *json.Decoder, err error) {
 	decoder = json.NewDecoder(reader)
 	return;
 }
+
+func ReadRequest(stdin io.Reader) (request Request, err error) {
+	decoder, err := PrepareDecoder(stdin)
+	if err != nil {
+		return
+	}
+	err = decoder.Decode(&request)
+	if err == io.EOF {
+		err = nil
+	}
+	return
+}

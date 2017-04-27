@@ -63,8 +63,9 @@ u8sctMeF0yFMwDfshzokmSE/
 				if result.DataString !="test" {
 					t.Errorf("decrypted text should be 'test', was '%s'", result.DataString)
 				}
-				if result.Signatures[0].Keyid != "F9C2408278723D64985CA4A63F3B8061E714CD2C" {
-					t.Errorf("wrong keyid, expected F9C2408278723D64985CA4A63F3B8061E714CD2C, got %s", result.Signatures[0].Keyid)
+
+				if len(result.Signatures)==0 || result.Signatures[0].Keyid != "F9C2408278723D64985CA4A63F3B8061E714CD2C" {
+					t.Errorf("wrong keyid, expected F9C2408278723D64985CA4A63F3B8061E714CD2C, got %s", result.Signatures)
 				}
 			},
 		},

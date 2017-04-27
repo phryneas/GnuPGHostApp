@@ -15,7 +15,7 @@ func TestReadRequest(t *testing.T) {
 	}
 
 	// read legal value
-	testString := "{\"action\":\"test\",\"data\":\"testData\"}";
+	testString := "{\"action\":\"test\"}";
 	stringLengthBytes := make([]byte, 4)
 	binary.LittleEndian.PutUint32(stringLengthBytes, uint32(len(testString)))
 	testReader = strings.NewReader(string(stringLengthBytes[:]) + testString)
@@ -24,7 +24,7 @@ func TestReadRequest(t *testing.T) {
 		t.Errorf("legal string should not cause an error, got %s %s", request, err)
 	}
 	// validate data
-	if request.Action != "test" || request.Data != "testData" {
+	if request.Action != "test" {
 		t.Errorf("illegal values read from json")
 	}
 }

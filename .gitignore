@@ -1,6 +1,7 @@
 src/github.com
 tmp/
 
+pkg/
 *.exe
 *.dll
 *.so

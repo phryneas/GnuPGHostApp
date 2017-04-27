@@ -47,12 +47,8 @@ func LoopExecution(stdin io.Reader, stdout io.Writer) (err error) {
 		}
 	}()
 
-	var request NativeMessagingHost.Request
-	decoder, err := NativeMessagingHost.PrepareDecoder(stdin)
+	request, err := NativeMessagingHost.ReadRequest(stdin)
 	handleError(err)
-
-	err = decoder.Decode(&request)
-	handleErrorNotEOF(err)
 
 	response := NativeMessagingHost.Response{}
 
