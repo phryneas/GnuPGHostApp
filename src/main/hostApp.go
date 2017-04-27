@@ -5,25 +5,12 @@ import (
 	"io"
 	"log"
 	"NativeMessagingHost"
-	"github.com/proglottis/gpgme"
-	"OpenPgpJsApi"
-	"github.com/go-errors/errors"
 	"fmt"
+	"errors"
 )
 
 func main() {
-	// for testing purposes, paste this string to STDIN:
-	// XXXX{"action":"qwe","data":"ads"}'
-
 	logger := log.New(os.Stderr, "GnuPGHostApp: ", log.Lshortfile)
-
-	recipients, err := gpgme.FindKeys("e", false)
-	if err != nil {
-		logger.Fatalf("encountered error: %s", err)
-	}
-	for _, val := range recipients {
-		logger.Printf("%s", val.UserIDs().Name())
-	}
 
 	mainLoop(logger)
 
@@ -56,7 +43,7 @@ func mainLoop(logger *log.Logger) {
 func LoopExecution(stdin io.Reader, stdout io.Writer) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err =  errors.Wrap(r.(error), 1)
+			err =  r.(error)
 		}
 	}()
 
@@ -64,32 +51,24 @@ func LoopExecution(stdin io.Reader, stdout io.Writer) (err error) {
 	decoder, err := NativeMessagingHost.PrepareDecoder(stdin)
 	handleError(err)
 
-	decoder.Decode(&request)
+	err = decoder.Decode(&request)
 	handleErrorNotEOF(err)
 
-	decoder, err = NativeMessagingHost.PrepareDecoder(stdin)
-	handleError(err)
+	response := NativeMessagingHost.Response{}
 
-	var actionRequest OpenPgpJsApi.ActionRequest
 	switch request.Action {
 	case "decrypt":
-		var x OpenPgpJsApi.OpenPgpJsDecryptRequest
-		err = decoder.Decode(&x)
-		actionRequest = x
+		response.Data.Decrypt, err = request.Data.Decrypt.Execute()
 	case "encrypt":
-		var x OpenPgpJsApi.OpenPgpJsEncryptRequest
-		err = decoder.Decode(&x)
-		actionRequest = x
+		response.Data.Encrypt, err = request.Data.Encrypt.Execute()
 	default:
 		err = errors.New(fmt.Sprintf("unknown action type '%s'", request.Action))
 	}
-	handleErrorNotEOF(err)
 
-	response, err := actionRequest.Execute()
+
 	handleError(err)
 
-
-	err = NativeMessagingHost.SendResponse(response, stdout)
+	err = response.Send(stdout)
 	handleError(err)
 
 	return nil;

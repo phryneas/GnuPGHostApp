@@ -25,15 +25,18 @@ u8sctMeF0yFMwDfshzokmSE/
 -----END PGP MESSAGE-----`
 
 func TestOpenPgpJsDecryptRequest_Execute(t *testing.T) {
-	request := OpenPgpJsDecryptRequest{message: encryptedTest}
+	request := OpenPgpJsDecryptRequest{Message: encryptedTest}
 	result, err := request.Execute()
 	if err != nil {
 		t.Errorf("encountered error: %s", err)
 	}
-	if result.dataString!="test" {
-		t.Errorf("decrypted text should be 'test', was '%s'", result.dataString)
+	if result.DataString !="test" {
+		t.Errorf("decrypted text should be 'test', was '%s'", result.DataString)
 	}
-	//TODO: expect true for F9C2408278723D64985CA4A63F3B8061E714CD2C
-
-	t.Errorf("BLAR! %s", result)
+	if result.Signatures[0].Keyid != "F9C2408278723D64985CA4A63F3B8061E714CD2C" {
+		t.Errorf("wrong keyid, expected F9C2408278723D64985CA4A63F3B8061E714CD2C, got %s", result.Signatures[0].Keyid)
+	}
+	if !result.Signatures[0].Valid {
+		t.Errorf("invalid signature. should not happen")
+	}
 }

@@ -5,22 +5,34 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"bytes"
-	"fmt"
+	"OpenPgpJsApi"
 )
+
+type ResponseData struct {
+	Encrypt OpenPgpJsApi.OpenPgpJsEncryptResult `json:"encrypt"`
+	Decrypt OpenPgpJsApi.OpenPgpJsDecryptResult `json:"decrypt"`
+}
 
 type Response struct {
 	Status string `json:"status"`
-	Data   string `json:"data"`
+	Data ResponseData `json:"data"`
 }
 
 func (r Response) String() string {
-	return fmt.Sprintf("Response{Status: %s, Data: %s}", r.Status, r.Data)
+	buffer := new(bytes.Buffer)
+	buffer.WriteString("Response: ")
+	json.NewEncoder(buffer).Encode(r)
+	return buffer.String()
 }
 
-func SendResponse(r interface{}, stdOut io.Writer) (err error) {
+func (r Response) Send(stdOut io.Writer) (err error) {
+	return SendItem(stdOut, r)
+}
+
+func SendItem(stdOut io.Writer, item interface{} ) (err error){
 	var b bytes.Buffer
-	json.NewEncoder(&b).Encode(r);
-	binary.Write(stdOut, binary.LittleEndian, uint32(b.Len()));
+	json.NewEncoder(&b).Encode(item);
+	binary.Write(stdOut, binary.LittleEndian, uint32(b.Len()))
 	b.WriteTo(stdOut)
 	return;
 }

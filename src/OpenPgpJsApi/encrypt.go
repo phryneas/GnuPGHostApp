@@ -5,6 +5,8 @@ import (
 	"io"
 	"strings"
 	"bytes"
+	"fmt"
+	"errors"
 )
 
 // @see https://openpgpjs.org/openpgpjs/doc/module-openpgp.html#.encrypt
@@ -13,30 +15,39 @@ import (
 //passwords   //String | Array.<String> 	(optional) array of passwords or a single password to encrypt the Message
 //filename    //String 	(optional) a filename for the literal Data packet
 type OpenPgpJsEncryptRequest struct {
-	DataString  string `json:"DataString"`      //String | Uint8Array 	text/Data to be encrypted as JavaScript binary string or Uint8Array
-	DataBytes   []byte  `json:"DataBytes"`      //String | Uint8Array 	text/Data to be encrypted as JavaScript binary string or Uint8Array
+	DataString  string `json:"data_string"`      //String | Uint8Array 	text/Data to be encrypted as JavaScript binary string or Uint8Array
+	DataBytes   []byte  `json:"data_bytes"`      //String | Uint8Array 	text/Data to be encrypted as JavaScript binary string or Uint8Array
 	PublicKeys  []string `json:"public_keys"`   //Key | Array.<Key> 	(optional) array of keys or single key, used to encrypt the Message
 	PrivateKeys []string  `json:"private_keys"` //Key | Array.<Key> 	(optional) private keys for signing. If omitted Message will not be signed
-	Armor       bool `json:"Armor"`             //Boolean 	(optional) if the return values should be ascii armored or the Message/Signature objects
-	Detached    bool `json:"Detached"`          //Boolean 	(optional) if the Signature should be Detached (if true, Signature will be added to returned object)
-	Signature   interface{} `json:"Signature"`  //Signature 	(optional) a Detached Signature to add to the encrypted Message
+	Armor       bool `json:"armor"`             //Boolean 	(optional) if the return values should be ascii armored or the Message/Signature objects
+	Detached    bool `json:"detached"`          //Boolean 	(optional) if the Signature should be Detached (if true, Signature will be added to returned object)
+	Signature   interface{} `json:"signature"`  //Signature 	(optional) a Detached Signature to add to the encrypted Message
+}
+
+func (r OpenPgpJsEncryptRequest) String() string {
+	return fmt.Sprintf("DataString: %s, DataBytes: %s, PublicKeys: %s, PrivateKeys: %s, Armor: %b, Detached: %b, Signature: %s",
+	r.DataString,
+	r.DataBytes,
+	r.PublicKeys,
+	r.PrivateKeys,
+	r.Armor,
+	r.Detached,
+	r.Signature)
 }
 
 type OpenPgpJsEncryptResult struct {
-	Data      string // ASCII armored Message if 'Armor' is true
-	Message   []byte // full Message object if 'Armor' is false
-	Signature []byte //Detached Signature if 'Detached' is true
+	Data      string `json:"data"`      // ASCII armored Message if 'Armor' is true
+	Message   []byte `json:"message"`   // full Message object if 'Armor' is false
+	Signature []byte `json:"signature"` //Detached Signature if 'Detached' is true
 }
 
-func (r OpenPgpJsEncryptRequest) Execute() (result RequestResult, err error) {
+func (r OpenPgpJsEncryptRequest) Execute() (result OpenPgpJsEncryptResult, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			result = nil
+			result = OpenPgpJsEncryptResult{}
 			err = r.(error)
 		}
 	}()
-
-	res := OpenPgpJsEncryptResult{}
 
 	recipients := make([]*gpgme.Key, 0)
 	for _, pubKey := range r.PublicKeys {
@@ -47,14 +58,22 @@ func (r OpenPgpJsEncryptRequest) Execute() (result RequestResult, err error) {
 		}
 	}
 
-	var plain *gpgme.Data
+	if len(recipients) == 0 {
+		handleErr(errors.New("no recipient key found"))
+	}
+
 	cipher, err := gpgme.NewData()
+	handleErr(err)
+	defer cipher.Close()
+
+	var plain *gpgme.Data
 	if r.DataString != "" {
 		plain, err = gpgme.NewDataReader(strings.NewReader(r.DataString))
 	} else {
 		plain, err = gpgme.NewDataReader(bytes.NewReader(r.DataBytes))
 	}
 	handleErr(err)
+	defer plain.Close()
 
 	ctx, err := gpgme.New()
 	handleErr(err)
@@ -62,13 +81,17 @@ func (r OpenPgpJsEncryptRequest) Execute() (result RequestResult, err error) {
 	err = ctx.Encrypt(recipients, 0, plain, cipher)
 	handleErr(err)
 
+	cipher.Seek(0, gpgme.SeekSet)
 	buf := new(bytes.Buffer)
 	io.Copy(buf, cipher)
+
+	fmt.Println( buf.String())
+
 	if r.Armor {
-		res.Data = buf.String()
+		result.Data = buf.String()
 	} else {
-		res.Message = buf.Bytes()
+		result.Message = buf.Bytes()
 	}
 
-	return res, nil
+	return
 }

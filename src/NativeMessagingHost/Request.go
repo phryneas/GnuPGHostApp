@@ -5,18 +5,33 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"OpenPgpJsApi"
+	"bytes"
 )
+
+type RequestData struct {
+	Encrypt OpenPgpJsApi.OpenPgpJsEncryptRequest `json:"encrypt"`
+	Decrypt OpenPgpJsApi.OpenPgpJsDecryptRequest `json:"decrypt"`
+}
 
 type Request struct {
 	Action string `json:"action"`
-	Data   string `json:"data"`
+	Data   RequestData `json:"data"`
 }
 
 func (r Request) String() string {
-	return fmt.Sprintf("%s [%s]", r.Action, r.Data);
+	buffer := new(bytes.Buffer)
+	buffer.WriteString("Request: ")
+	json.NewEncoder(buffer).Encode(r)
+	return buffer.String()
 }
 
-func PrepareDecoder(stdIn io.Reader) (decoder *json.Decoder, err error){
+
+func (r RequestData) String() string {
+	return fmt.Sprintf("Encrypt: [%s] , Decrypt: [%s]", r.Encrypt, r.Decrypt);
+}
+
+func PrepareDecoder(stdIn io.Reader) (decoder *json.Decoder, err error) {
 	var n uint32
 	err = binary.Read(stdIn, binary.LittleEndian, &n);
 	if err != nil {
