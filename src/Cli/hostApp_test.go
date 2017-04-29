@@ -20,7 +20,7 @@ func TestLoopExecution(t *testing.T) {
 			NativeMessagingHost.Request{
 				Action: "encrypt",
 				Data: NativeMessagingHost.RequestData{
-					Encrypt: OpenPgpJsApi.OpenPgpJsEncryptRequest{DataString: "test", Armor: true, PublicKeys: []string{"F9C2408278723D64985CA4A63F3B8061E714CD2C"}},
+					Encrypt: OpenPgpJsApi.OpenPgpJsEncryptRequest{DataString: "test", Armor: true, PublicKeys: []string{"1E43F132357B5AD55CECCCC3067D1766157F6495"}},
 				},
 			},
 			func(response NativeMessagingHost.Response, t *testing.T) {
@@ -38,21 +38,18 @@ func TestLoopExecution(t *testing.T) {
 						Message: `-----BEGIN PGP MESSAGE-----
 Version: GnuPG v2
 
-hQEMA0lF8LJU85UOAQgA5BjlfmBncN+9G8SFFhHvpZLUzj+z9f6AEtUCE8oI8oSb
-TkQKX00cbYNYbUvJ14bOMZA/Z6rBRqa5ko3RbZ11DYHvOqwcgUv4k+lic1nU7Uwt
-X+gFO6RgiJVze1bmtWAg/6OsAIOV5sf5pYEkAV2u+VzaW8adCHyvIzdINa9j8SMm
-JZh/MAWRC5A+GzMnyR7qpmtVswAOR/1aiqm0nE+WnvIPXs0JqNCoLT0jPFsBHKv5
-CEDBHlgxJOFUNvXEG7klii/Yuoe8uW6RDLArksh4OTkELOT4GwRQC+ZelycghdY8
-2tiEmVv4EqrGv4/0AnLz8XM2iOA7AZmo8ZdSm58OY9LAsAFD++l9M3RkWBd6Na3C
-CGwes62uYCzzBINX6ftBoblZc1QbBeCgbatjqiEeMxnrp52lSr9e79lBUr4y4QAU
-E+pV6oKprDdne68aKjFmfbToBpneUz5xR4NK9+NnFZ2MtGEUp6Psk74x9AyvUm59
-IPIyZg6uZuGl8nUfRoGql9qOdXR3WL9xgQ4+NPkRsMB07y+0RC2INRft+vH2CVOi
-aUQLMWs3FkHAwxZ2DmHvwZwCgh6fStPLmCVHL2pttqrFnPjigYzQgZF1ski5kAP2
-+itB8BiuprIjC1BlpuyMg16O86VfQX2NfgL5KMnpyxnWFo/SIxvOrEM6MK9xblln
-riRfMsR0aeygr35U4nIYU4innYeNCLg5l53FdVlWdTDhyd2ixJ1gQKBumoDzFcph
-M+voe5nNDHzqGui80YASmll9wmTF6+MVEB5078VLfqDnjWCyt+knMFmoO9EVwqCD
-u8sctMeF0yFMwDfshzokmSE/
-=zqnU
+hQEMA0Hq9rAfhmAEAQgAokUPFgHuN5ODm4jfzujXBfVVmqhzATht8Boo5tmIcQxa
+zIxznHmwIRDsURe9GzzxWh/NftXZ8Xc6leKd8K6dLD57I6lj5NGDbgRD56+mHg5w
+cTkREcajytlbT7eTVGZdY5MZ66bfs67qosGUQA7ltM6qMVRN5ucnEHzGZGgiZ31J
+JfnClKquWWFEXU2+Xe8lX5HWVe7BXk/K4OjAndkAzoa7aTHdUF8FQU5l3IZk5Vg1
++McK/PsBm5sH5DXaa3bBBbnqAammBZGxXG3P6bKGCiMjx38v4Ks5Nbq/v1VM4uz7
+eyyQJ5ri+V69teO64IwcBQ564ohCku1oLGueh+pZe9LAKwGTKQbhyDIb2qLTA2n8
++xE3kMuNzzy7WKz+4RRTdqdN8uOJS7AAj6bfA+vnmqEFPOf5v8ATI5vv0YLR9d+1
+4YPgJ+4rOoHXpBlErAxWH2iZRYwYvaU2tIZfLu6d2otJHdIUN4JgyFl59r+92iJM
+8VKFoymetgfmR75WRaZZNVkp/39ivZ2bMgJphhsWAP033/DSzQSzBDYTr1viVsWg
+j2G2g6zJ8g/FAYeCikj6VsOimGIfG3MabIIOTfyv0atCMWfcqbZvWHzF+q6ZaGYe
+yFUFvIGXdTUh+8TfsCLbVu/2UgjD5M0stBi4oAc=
+=ig18
 -----END PGP MESSAGE-----`,
 						Format: "utf8",
 					},
@@ -64,8 +61,8 @@ u8sctMeF0yFMwDfshzokmSE/
 					t.Errorf("decrypted text should be 'test', was '%s'", result.DataString)
 				}
 
-				if len(result.Signatures)==0 || result.Signatures[0].Keyid != "F9C2408278723D64985CA4A63F3B8061E714CD2C" {
-					t.Errorf("wrong keyid, expected F9C2408278723D64985CA4A63F3B8061E714CD2C, got %s", result.Signatures)
+				if len(result.Signatures)==0 || result.Signatures[0].Keyid != "1E43F132357B5AD55CECCCC3067D1766157F6495" {
+					t.Errorf("wrong keyid, expected 1E43F132357B5AD55CECCCC3067D1766157F6495, got %s", result.Signatures)
 				}
 			},
 		},

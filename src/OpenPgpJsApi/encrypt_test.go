@@ -6,7 +6,7 @@ import (
 )
 
 func TestOpenPgpJsEncryptRequest_Execute(t *testing.T) {
-	request := OpenPgpJsEncryptRequest{DataString:"test", PublicKeys:[]string{"B76C94DD"}, Armor:true}
+	request := OpenPgpJsEncryptRequest{DataString:"test", PublicKeys:[]string{"157F6495"}, Armor:true}
 	result, err := request.Execute()
 	if err != nil {
 		t.Errorf("encrypt request errored: %s", err)
