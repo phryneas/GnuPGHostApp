@@ -1,9 +1,20 @@
 #!/usr/bin/env sh
-export GOPATH=$(cd $(dirname $0); pwd)
+export GOPATH=$(pwd)
+export CGO_CFLAGS="-I$(pwd)/include"
+export CGO_LDFLAGS="-L$(pwd)/lib -Wl,-rpath -Wl,\$ORIGIN/lib"
+
+#export CGO_CFLAGS="-I$(pwd)/include"
+#export CGO_LDFLAGS="-L$(pwd)/lib"
+
+
+
+#REG ADD "HKCU\\Software\\Google\\Chrome\\NativeMessagingHosts\\de.phryneas.gpg.hostapp" //ve //t REG_SZ //d "C:\\Users\\weber.VOSDOM\\GoglandProjects\\GnuPGHostApp\\nmh-manifest.json" //f
 
 #windows, msys2: 
 #pacman -S mingw-w64-x86_64-gpgme
 #pacman -S mingw-w64-x86_64-toolchain
 # in the end, instead of the pacman-gpgme, I used gpgme1.9 from the tarball. built with mingw64, but installed into the /C/msys2/usr prefix. definitely not clean, but works for now
 
-PATH=$PATH:/mingw64/bin
+
+
+PATH=$PATH:/C/Go/bin:/mingw32/bin

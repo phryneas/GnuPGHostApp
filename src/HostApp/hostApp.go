@@ -10,14 +10,20 @@ import (
 )
 
 func main() {
-	logger := log.New(os.Stderr, "GnuPGHostApp: ", log.Lshortfile)
+	f, err := os.OpenFile("log.txt", os.O_APPEND | os.O_CREATE | os.O_RDWR, 0666)
+	if err != nil {
+		os.Stderr.WriteString("could not open logfile\n")
+		os.Exit(1)
+	}
+	//logger := log.New(os.Stderr, "GnuPGHostApp: ", log.Lshortfile)
+	logger := log.New(f, "GnuPGHostApp: ", log.Ldate | log.Ltime | log.Lshortfile)
 
 	mainLoop(logger)
 
 }
 
 func handleErrorNotEOF(err error) {
-	if err == io.EOF  {
+	if err == io.EOF {
 		return
 	}
 	handleError(err)
@@ -41,14 +47,10 @@ func mainLoop(logger *log.Logger) {
 }
 
 func LoopExecution(stdin io.Reader, stdout io.Writer) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err =  r.(error)
-		}
-	}()
-
 	request, err := NativeMessagingHost.ReadRequest(stdin)
-	handleError(err)
+	if err != nil {
+		return;
+	}
 
 	response := NativeMessagingHost.Response{}
 
@@ -57,15 +59,19 @@ func LoopExecution(stdin io.Reader, stdout io.Writer) (err error) {
 		response.Data.Decrypt, err = request.Data.Decrypt.Execute()
 	case "encrypt":
 		response.Data.Encrypt, err = request.Data.Encrypt.Execute()
+	case "test":
+		response.Message = "test"
+		break;
 	default:
 		err = errors.New(fmt.Sprintf("unknown action type '%s'", request.Action))
 	}
-
-
-	handleError(err)
+	if response.Status == "" && err == nil {
+		response.Status = "ok"
+	} else if err != nil {
+		response.Status = "error"
+		response.Message = err.Error()
+	}
 
 	err = response.Send(stdout)
-	handleError(err)
-
-	return nil;
+	return err;
 }
