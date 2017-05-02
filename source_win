@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
 export GOPATH=$(pwd)
 export CGO_CFLAGS="-I$(pwd)/include"
-export CGO_LDFLAGS="-L$(pwd)/lib -Wl,-rpath -Wl,\$ORIGIN/lib"
+#export CGO_LDFLAGS="-L$(pwd)/lib -Wl,-rpath -Wl,\$ORIGIN/lib"
 
 #export CGO_CFLAGS="-I$(pwd)/include"
-#export CGO_LDFLAGS="-L$(pwd)/lib"
+export CGO_LDFLAGS="-L$(pwd)/lib"
 
 
 
@@ -17,4 +17,4 @@ export CGO_LDFLAGS="-L$(pwd)/lib -Wl,-rpath -Wl,\$ORIGIN/lib"
 
 
 
-PATH=$PATH:/C/Go/bin:/mingw32/bin
+PATH=$PATH:/C/Go/bin:/C/mingw/bin

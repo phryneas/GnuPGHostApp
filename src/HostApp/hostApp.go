@@ -6,40 +6,31 @@ import (
 	"log"
 	"NativeMessagingHost"
 	"fmt"
-	"errors"
+	"time"
+	"github.com/pkg/errors"
 )
 
+var logger *log.Logger
+
 func main() {
-	f, err := os.OpenFile("log.txt", os.O_APPEND | os.O_CREATE | os.O_RDWR, 0666)
+	f, err := os.OpenFile("log.txt", os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
 	if err != nil {
 		os.Stderr.WriteString("could not open logfile\n")
 		os.Exit(1)
 	}
 	//logger := log.New(os.Stderr, "GnuPGHostApp: ", log.Lshortfile)
-	logger := log.New(f, "GnuPGHostApp: ", log.Ldate | log.Ltime | log.Lshortfile)
+	logger = log.New(f, "GnuPGHostApp: ", log.Ldate|log.Ltime|log.Lshortfile)
+	logger.Printf("initialized with PATH %s", os.Getenv("PATH"))
 
-	mainLoop(logger)
-
+	mainLoop()
 }
 
-func handleErrorNotEOF(err error) {
-	if err == io.EOF {
-		return
-	}
-	handleError(err)
-}
-
-func handleError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-func mainLoop(logger *log.Logger) {
+func mainLoop() {
 	for {
 		e := LoopExecution(os.Stdin, os.Stdout)
-		if e == io.EOF {
-			logger.Println("encountered EOF, exiting gracefully")
+		if errors.Cause(e) == io.EOF {
+			time.Sleep(time.Millisecond * 100)
+			continue;
 		} else if e != nil {
 			logger.Fatalf("encountered error: %s", e)
 		}
@@ -51,6 +42,7 @@ func LoopExecution(stdin io.Reader, stdout io.Writer) (err error) {
 	if err != nil {
 		return;
 	}
+	logger.Printf("received request: '%s'", request)
 
 	response := NativeMessagingHost.Response{}
 
@@ -69,9 +61,10 @@ func LoopExecution(stdin io.Reader, stdout io.Writer) (err error) {
 		response.Status = "ok"
 	} else if err != nil {
 		response.Status = "error"
-		response.Message = err.Error()
+		response.Message = fmt.Sprintf("%+v", err)
 	}
 
+	logger.Printf("sending response: '%s'", response)
 	err = response.Send(stdout)
 	return err;
 }

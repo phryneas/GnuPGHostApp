@@ -47,6 +47,9 @@ func (r OpenPgpJsDecryptRequest) Execute() (result OpenPgpJsDecryptResult, err e
 	}()
 
 	ctx, err := gpgme.New()
+	handleErr(err)
+	defer ctx.Release()
+
 	signature, err := gpgme.NewDataReader(strings.NewReader(r.Signature))
 	handleErr(err)
 	defer signature.Close()

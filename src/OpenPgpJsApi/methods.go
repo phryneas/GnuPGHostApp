@@ -1,7 +1,13 @@
 package OpenPgpJsApi
 
+import (
+	"github.com/pkg/errors"
+)
+
+
 func handleErr(err error) {
 	if err != nil {
-		panic(err)
+		panic(errors.WithStack(err))
 	}
 }
+

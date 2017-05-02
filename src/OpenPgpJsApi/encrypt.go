@@ -77,6 +77,8 @@ func (r OpenPgpJsEncryptRequest) Execute() (result OpenPgpJsEncryptResult, err e
 
 	ctx, err := gpgme.New()
 	handleErr(err)
+	defer ctx.Release()
+
 	ctx.SetArmor(r.Armor)
 	err = ctx.Encrypt(recipients, 0, plain, cipher)
 	handleErr(err)

@@ -1,18 +1,24 @@
 {
   "manifest_version": 2,
 
-  "name": "Getting started example",
-  "description": "This extension shows a Google Image search result for the current page",
-  "version": "1.0",
+  "name": "example web extension",
+  "description": "",
+  "version": "0.1",
+
+  "applications": {
+    "gecko": {
+      "id": "example@hostapp.gpg.phryneas.de",
+      "strict_min_version": "42.0"
+    }
+  },
+
 
   "browser_action": {
-    "default_icon": "icon.png"
   },
   "background": {
     "scripts": ["background.js"]
   },
   "permissions": [
-    "activeTab",
     "nativeMessaging"
   ]
 }
