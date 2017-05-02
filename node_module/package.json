@@ -1,0 +1,38 @@
+{
+  "name": "openpgp-native-gpg-dropin",
+  "version": "0.0.1",
+  "description": "a library using native messaging with a host app to directly use the gnupg made easy library",
+  "main": "src/opengpg-dropin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://todo"
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "keywords": [
+    "pgp",
+    "gpg",
+    "gpgme",
+    "smartcards",
+    "chrome",
+    "firefox",
+    "native",
+    "messaging"
+  ],
+  "author": "Lenz Weber<mail@lenzw.de> https://github.com/phryneas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://todo"
+  },
+  "homepage": "https://todo",
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.4.0"
+  }
+}

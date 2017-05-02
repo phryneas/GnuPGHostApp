@@ -5,18 +5,11 @@
   "description": "",
   "version": "0.1",
 
-  "applications": {
-    "gecko": {
-      "id": "example@hostapp.gpg.phryneas.de",
-      "strict_min_version": "42.0"
-    }
-  },
-
 
   "browser_action": {
   },
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["src/background-compiled.js"]
   },
   "permissions": [
     "nativeMessaging"

@@ -1,5 +1,6 @@
 src/github.com
 tmp/
+node_modules/
 
 pkg/
 *.exe
