@@ -1,7 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 //var openpgp = require("openpgp");
 
-var openpgp = require("../../node_module/dist/src/opengpg-dropin").default;
+var openpgp = require("../../node_module/dist/src/index");
 
 console.log('loaded', openpgp);
 
@@ -18,7 +18,7 @@ port.onDisconnect.addListener(function () {
 browser.browserAction.onClicked.addListener(function () {
     console.log('clicked');
 
-    var options, encrypted;
+    var options;
 
     var pubkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1
@@ -86,9 +86,9 @@ S0xTBiXNz+p7utW+MC6ynHDrzio3
         privateKeys: privKeyObj // for signing (optional)
     };
 
-    openpgp.encrypt(options).then(function (ciphertext) {
-        console.log("ciphertext", ciphertext);
-        return ciphertext.data;
+    openpgp.encrypt(options).then(function (encrypted) {
+        console.log("encrypted", encrypted);
+        return encrypted.data;
     }).then(function (encrypted) {
         options = {
             message: encrypted, //TODO openpgp.message.readArmored(encrypted),     // parse armored message
@@ -98,46 +98,18 @@ S0xTBiXNz+p7utW+MC6ynHDrzio3
 
         console.log(options);
         return openpgp.decrypt(options);
-    }).then(function (plaintext) {
-        console.log("plaintext", plaintext);
-        return plaintext.data;
+    }).then(function (decrypted) {
+        console.log("decrypted", decrypted);
+        return decrypted.data;
     });
 });
 
-},{"../../node_module/dist/src/opengpg-dropin":2}],2:[function(require,module,exports){
+},{"../../node_module/dist/src/index":3}],2:[function(require,module,exports){
 'use strict';
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-
-var _slicedToArray = function () {
-    function sliceIterator(arr, i) {
-        var _arr = [];var _n = true;var _d = false;var _e = undefined;try {
-            for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-                _arr.push(_s.value);if (i && _arr.length === i) break;
-            }
-        } catch (err) {
-            _d = true;_e = err;
-        } finally {
-            try {
-                if (!_n && _i["return"]) _i["return"]();
-            } finally {
-                if (_d) throw _e;
-            }
-        }return _arr;
-    }return function (arr, i) {
-        if (Array.isArray(arr)) {
-            return arr;
-        } else if (Symbol.iterator in Object(arr)) {
-            return sliceIterator(arr, i);
-        } else {
-            throw new TypeError("Invalid attempt to destructure non-iterable instance");
-        }
-    };
-}();
 
 var _createClass = function () {
     function defineProperties(target, props) {
@@ -147,34 +119,14 @@ var _createClass = function () {
     }return function (Constructor, protoProps, staticProps) {
         if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
     };
-}(); /*jshint esversion: 6 */
+}();
 
-var _openPgp = require('openPgp');
+var _index = require('./index');
 
-var openpgp = _interopRequireWildcard(_openPgp);
+var _index2 = _interopRequireDefault(_index);
 
-function _interopRequireWildcard(obj) {
-    if (obj && obj.__esModule) {
-        return obj;
-    } else {
-        var newObj = {};if (obj != null) {
-            for (var key in obj) {
-                if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
-            }
-        }newObj.default = obj;return newObj;
-    }
-}
-
-function _possibleConstructorReturn(self, call) {
-    if (!self) {
-        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
-
-function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-        throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
 }
 
 function _classCallCheck(instance, Constructor) {
@@ -182,12 +134,6 @@ function _classCallCheck(instance, Constructor) {
         throw new TypeError("Cannot call a class as a function");
     }
 }
-
-/*
-import {Key} from 'openpgp/src/key';
-import {Signature} from 'openpgp/src/signature';
-import {Message} from 'openpgp/src/message';
-*/
 
 /**
  * @property {function[]} queue
@@ -217,10 +163,161 @@ var ListenerQueue = function () {
 }();
 
 /**
+ * @property {ListenerQueue} _listenerQueue
+ * @property {runtime.Port} _port
+ */
+
+var AsyncProxy = function () {
+    function AsyncProxy() {
+        var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+            _ref$path = _ref.path,
+            path = _ref$path === undefined ? 'openpgp.AsyncWorker.js' : _ref$path,
+            worker = _ref.worker,
+            config = _ref.config;
+
+        _classCallCheck(this, AsyncProxy);
+
+        var browser = window.browser || window.chrome;
+
+        this._listenerQueue = new ListenerQueue();
+        this._port = browser.runtime.connectNative('de.phryneas.gpg.hostapp');
+        console.info("hostApp connected");
+
+        this._port.onDisconnect.addListener(function () {
+            console.info("hostApp disconnected");
+        });
+
+        this._port.onMessage.addListener(function (data) {
+            return console.log(data);
+        });
+        this._port.onMessage.addListener(this._listenerQueue.listener.bind(this._listenerQueue));
+    }
+
+    _createClass(AsyncProxy, [{
+        key: 'delegate',
+        value: function delegate(method, options) {
+            if (typeof _index2.default[method] !== 'function') {
+                return Promise.resolve({ event: 'method-return', err: 'Unknown Worker Event' });
+            }
+            return _index2.default[method](options);
+        }
+    }, {
+        key: 'sendToHostApp',
+        value: function sendToHostApp(data) {
+            var _this = this;
+
+            return new Promise(function (resolve) {
+                _this._listenerQueue.queueListener(function (response) {
+                    resolve(response);
+                });
+
+                console.info('sending to HostApp', data);
+                _this._port.postMessage(data);
+            });
+        }
+    }]);
+
+    return AsyncProxy;
+}();
+
+exports.default = AsyncProxy;
+
+
+},{"./index":3}],3:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.HKP = exports.AsyncProxy = exports.Keyring = exports.crypto = exports.config = exports.enums = exports.armor = exports.Keyid = exports.S2K = exports.MPI = exports.packet = exports.util = exports.cleartext = exports.signature = exports.key = exports.decryptSessionKey = exports.encryptSessionKey = exports.verify = exports.sign = exports.decrypt = exports.encrypt = exports.decryptKey = exports.reformatKey = exports.generateKey = exports.destroyWorker = exports.getWorker = exports.initWorker = undefined;
+
+var _openpgp = require('openpgp');
+
+var _openpgp2 = _interopRequireDefault(_openpgp);
+
+var _opengpg_dropin = require('./opengpg_dropin');
+
+function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+}
+
+var overridden_openpgp = Object.assign({}, _openpgp2.default, {
+    initWorker: _opengpg_dropin.initWorker,
+    getWorker: _opengpg_dropin.getWorker,
+    encrypt: _opengpg_dropin.encrypt,
+    decrypt: _opengpg_dropin.decrypt
+});
+exports.default = overridden_openpgp;
+exports.initWorker = _opengpg_dropin.initWorker;
+exports.getWorker = _opengpg_dropin.getWorker;
+exports.destroyWorker = _openpgp.destroyWorker;
+exports.generateKey = _openpgp.generateKey;
+exports.reformatKey = _openpgp.reformatKey;
+exports.decryptKey = _openpgp.decryptKey;
+exports.encrypt = _opengpg_dropin.encrypt;
+exports.decrypt = _opengpg_dropin.decrypt;
+exports.sign = _openpgp.sign;
+exports.verify = _openpgp.verify;
+exports.encryptSessionKey = _openpgp.encryptSessionKey;
+exports.decryptSessionKey = _openpgp.decryptSessionKey;
+exports.key = _openpgp.key;
+exports.signature = _openpgp.signature;
+exports.cleartext = _openpgp.cleartext;
+exports.util = _openpgp.util;
+exports.packet = _openpgp.packet;
+exports.MPI = _openpgp.MPI;
+exports.S2K = _openpgp.S2K;
+exports.Keyid = _openpgp.Keyid;
+exports.armor = _openpgp.armor;
+exports.enums = _openpgp.enums;
+exports.config = _openpgp.config;
+exports.crypto = _openpgp.crypto;
+exports.Keyring = _openpgp.Keyring;
+exports.AsyncProxy = _openpgp.AsyncProxy;
+exports.HKP = _openpgp.HKP;
+
+
+},{"./opengpg_dropin":4,"openpgp":5}],4:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.initWorker = initWorker;
+exports.getWorker = getWorker;
+exports.encrypt = encrypt;
+exports.decrypt = decrypt;
+
+var _openpgp = require('openpgp');
+
+var openpgp = _interopRequireWildcard(_openpgp);
+
+var _async_proxy_dropin = require('./async_proxy_dropin');
+
+var _async_proxy_dropin2 = _interopRequireDefault(_async_proxy_dropin);
+
+function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+}
+
+function _interopRequireWildcard(obj) {
+    if (obj && obj.__esModule) {
+        return obj;
+    } else {
+        var newObj = {};if (obj != null) {
+            for (var key in obj) {
+                if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
+            }
+        }newObj.default = obj;return newObj;
+    }
+}
+
+/**
  *
  * @param {Key[]} keys
  * @returns {Array}
  */
+/*jshint esversion: 6 */
 
 function toArray(keys) {
     if (!Array.isArray(keys)) {
@@ -235,251 +332,131 @@ function toArray(keys) {
     });
 }
 
+var _listenerQueue = void 0,
+    _port = void 0;
+
+(function init() {})();
+
 /**
- * @param module
- * @returns {Function}
+ * @inheritDoc
  */
-function wrapModule(module) {
-    var ret = function ret() {};
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-        for (var _iterator = Object.entries(module)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var _ref = _step.value;
-
-            var _ref2 = _slicedToArray(_ref, 2);
-
-            var key = _ref2[0];
-            var value = _ref2[1];
-
-            ret.prototype[key] = value;
-        }
-    } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-    } finally {
-        try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
-            }
-        } finally {
-            if (_didIteratorError) {
-                throw _iteratorError;
-            }
-        }
-    }
-
-    return ret;
+function initWorker() {
+    return true;
 }
 
-var wrapped = wrapModule(openpgp);
+/**
+ * @inheritDoc
+ */
+function getWorker() {
+    return new _async_proxy_dropin2.default();
+}
 
 /**
- * @property {OpenPgpDropIn} delegateTo
+ * @see openpgp.encrypt
+ * Encrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords
+ *   must be specified. If private keys are specified, those will be used to sign the message.
+ * @param  {String|Uint8Array} data           text/data to be encrypted as JavaScript binary string or Uint8Array
+ * @param  {Key|Array<Key>} publicKeys        (optional) array of keys or single key, used to encrypt the message
+ * @param  {Key|Array<Key>} privateKeys       (optional) private keys for signing. If omitted message will not be signed
+ * @param  {String|Array<String>} passwords   (optional) array of passwords or a single password to encrypt the message
+ * @param  {String} filename                  (optional) a filename for the literal data packet
+ * @param  {Boolean} armor                    (optional) if the return values should be ascii armored or the message/signature objects
+ * @param  {Boolean} detached                 (optional) if the signature should be detached (if true, signature will be added to returned object)
+ * @param  {Signature} signature              (optional) a detached signature to add to the encrypted message
+ * @return {Promise<Object>}                  encrypted (and optionally signed message) in the form:
+ *                                              {data: ASCII armored message if 'armor' is true,
+     *                                                message: full Message object if 'armor' is false, signature: detached signature if 'detached' is true}
  */
+function encrypt() {
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        data = _ref.data,
+        _ref$publicKeys = _ref.publicKeys,
+        publicKeys = _ref$publicKeys === undefined ? [] : _ref$publicKeys,
+        _ref$privateKeys = _ref.privateKeys,
+        privateKeys = _ref$privateKeys === undefined ? [] : _ref$privateKeys,
+        _ref$passwords = _ref.passwords,
+        passwords = _ref$passwords === undefined ? [] : _ref$passwords,
+        filename = _ref.filename,
+        _ref$armor = _ref.armor,
+        armor = _ref$armor === undefined ? true : _ref$armor,
+        _ref$detached = _ref.detached,
+        detached = _ref$detached === undefined ? false : _ref$detached,
+        _ref$signature = _ref.signature,
+        signature = _ref$signature === undefined ? null : _ref$signature;
 
-var Worker = function () {
-    function Worker(delegateTo) {
-        _classCallCheck(this, Worker);
-
-        this.delegateTo = delegateTo;
-    }
-
-    _createClass(Worker, [{
-        key: 'delegate',
-        value: function delegate(method, options) {
-            if (typeof this.delegateTo[method] !== 'function') {
-                return Promise.resolve({ event: 'method-return', err: 'Unknown Worker Event' });
+    var request = {
+        "action": "encrypt",
+        "data": {
+            "encrypt": {
+                "data_string": null,
+                "data_bytes": null,
+                "public_keys": toArray(publicKeys),
+                "private_keys": toArray(privateKeys),
+                "armor": armor,
+                "detached": detached,
+                "signature": null //TODO
             }
-            return this.delegateTo[method](options);
         }
-    }]);
+    };
 
-    return Worker;
-}();
-
-/**
- * @property {runtime.Port} _port
- * @property {ListenerQueue} _listenerQueue
- * @extends {openpgp}
- */
-
-var OpenPgpDropIn = function (_wrapModule) {
-    _inherits(OpenPgpDropIn, _wrapModule);
-
-    function OpenPgpDropIn() {
-        _classCallCheck(this, OpenPgpDropIn);
-
-        var _this = _possibleConstructorReturn(this, (OpenPgpDropIn.__proto__ || Object.getPrototypeOf(OpenPgpDropIn)).call(this));
-
-        var browser = window.browser || window.chrome;
-
-        _this._listenerQueue = new ListenerQueue();
-        _this._port = browser.runtime.connectNative('de.phryneas.gpg.hostapp');
-        console.info("hostApp connected");
-
-        _this._port.onDisconnect.addListener(function () {
-            console.info("hostApp disconnected");
-        });
-
-        _this._port.onMessage.addListener(function (data) {
-            return console.log(data);
-        });
-        _this._port.onMessage.addListener(_this._listenerQueue.listener.bind(_this._listenerQueue));
-        return _this;
+    if (typeof data === "string") {
+        request.data.encrypt.data_string = data;
+    } else {
+        request.data.encrypt.data_bytes = data;
     }
 
-    /**
-     * @inheritDoc
-     */
+    return this.getWorker().sendToHostApp(request).then(function (response) {
+        return response.data.encrypt;
+    });
+}
 
-    _createClass(OpenPgpDropIn, [{
-        key: 'initWorker',
-        value: function initWorker() {
-            return true;
+/**
+ * Decrypts a message with the user's private key, a session key or a password. Either a private key,
+ *   a session key or a password must be specified.
+ * @param  {Message} message             the message object with the encrypted data
+ * @param  {Key} privateKey              (optional) private key with decrypted secret key data or session key
+ * @param  {Key|Array<Key>} publicKeys   (optional) array of public keys or single key, to verify signatures
+ * @param  {Object} sessionKey           (optional) session key in the form: { data:Uint8Array, algorithm:String }
+ * @param  {String} password             (optional) single password to decrypt the message
+ * @param  {String} format               (optional) return data format either as 'utf8' or 'binary'
+ * @param  {Signature} signature         (optional) detached signature for verification
+ * @return {Promise<Object>}             decrypted and verified message in the form:
+ *                                         { data:Uint8Array|String, filename:String, signatures:[{ keyid:String, valid:Boolean }] }
+ */
+function decrypt() {
+    var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        message = _ref2.message,
+        privateKey = _ref2.privateKey,
+        publicKeys = _ref2.publicKeys,
+        sessionKey = _ref2.sessionKey,
+        password = _ref2.password,
+        _ref2$format = _ref2.format,
+        format = _ref2$format === undefined ? 'utf8' : _ref2$format,
+        _ref2$signature = _ref2.signature,
+        signature = _ref2$signature === undefined ? null : _ref2$signature;
+
+    // TODO: wrap Message && this.message - this should not be handled via direct call.
+
+    var request = {
+        "action": "decrypt",
+        "data": {
+            "decrypt": {
+                "message": message, //TODO
+                "public_keys": toArray(publicKeys),
+                "private_key": privateKey ? privateKey.primaryKey.fingerprint : null,
+                "format": format,
+                "signature": null //TODO
+            }
         }
+    };
 
-        /**
-         * @inheritDoc
-         */
-
-    }, {
-        key: 'getWorker',
-        value: function getWorker() {
-            return new Worker(this);
-        }
-
-        /**
-         * @see openpgp.encrypt
-         * Encrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords
-         *   must be specified. If private keys are specified, those will be used to sign the message.
-         * @param  {String|Uint8Array} data           text/data to be encrypted as JavaScript binary string or Uint8Array
-         * @param  {Key|Array<Key>} publicKeys        (optional) array of keys or single key, used to encrypt the message
-         * @param  {Key|Array<Key>} privateKeys       (optional) private keys for signing. If omitted message will not be signed
-         * @param  {String|Array<String>} passwords   (optional) array of passwords or a single password to encrypt the message
-         * @param  {String} filename                  (optional) a filename for the literal data packet
-         * @param  {Boolean} armor                    (optional) if the return values should be ascii armored or the message/signature objects
-         * @param  {Boolean} detached                 (optional) if the signature should be detached (if true, signature will be added to returned object)
-         * @param  {Signature} signature              (optional) a detached signature to add to the encrypted message
-         * @return {Promise<Object>}                  encrypted (and optionally signed message) in the form:
-         *                                              {data: ASCII armored message if 'armor' is true,
-         *                                                message: full Message object if 'armor' is false, signature: detached signature if 'detached' is true}
-         */
-
-    }, {
-        key: 'encrypt',
-        value: function encrypt() {
-            var _this2 = this;
-
-            var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                data = _ref3.data,
-                _ref3$publicKeys = _ref3.publicKeys,
-                publicKeys = _ref3$publicKeys === undefined ? [] : _ref3$publicKeys,
-                _ref3$privateKeys = _ref3.privateKeys,
-                privateKeys = _ref3$privateKeys === undefined ? [] : _ref3$privateKeys,
-                _ref3$passwords = _ref3.passwords,
-                passwords = _ref3$passwords === undefined ? [] : _ref3$passwords,
-                filename = _ref3.filename,
-                _ref3$armor = _ref3.armor,
-                armor = _ref3$armor === undefined ? true : _ref3$armor,
-                _ref3$detached = _ref3.detached,
-                detached = _ref3$detached === undefined ? false : _ref3$detached,
-                _ref3$signature = _ref3.signature,
-                signature = _ref3$signature === undefined ? null : _ref3$signature;
-
-            return new Promise(function (resolve) {
-                _this2._listenerQueue.queueListener(function (response) {
-                    resolve(response.data.encrypt);
-                });
-
-                var request = {
-                    "action": "encrypt",
-                    "data": {
-                        "encrypt": {
-                            "data_string": null,
-                            "data_bytes": null,
-                            "public_keys": toArray(publicKeys),
-                            "private_keys": toArray(privateKeys),
-                            "armor": armor,
-                            "detached": detached,
-                            "signature": null //TODO
-                        }
-                    }
-                };
-
-                if (typeof data === "string") {
-                    request.data.encrypt.data_string = data;
-                } else {
-                    request.data.encrypt.data_bytes = data;
-                }
-                console.info('sending message', request);
-                _this2._port.postMessage(request);
-            });
-        }
-
-        /**
-         * Decrypts a message with the user's private key, a session key or a password. Either a private key,
-         *   a session key or a password must be specified.
-         * @param  {Message} message             the message object with the encrypted data
-         * @param  {Key} privateKey              (optional) private key with decrypted secret key data or session key
-         * @param  {Key|Array<Key>} publicKeys   (optional) array of public keys or single key, to verify signatures
-         * @param  {Object} sessionKey           (optional) session key in the form: { data:Uint8Array, algorithm:String }
-         * @param  {String} password             (optional) single password to decrypt the message
-         * @param  {String} format               (optional) return data format either as 'utf8' or 'binary'
-         * @param  {Signature} signature         (optional) detached signature for verification
-         * @return {Promise<Object>}             decrypted and verified message in the form:
-         *                                         { data:Uint8Array|String, filename:String, signatures:[{ keyid:String, valid:Boolean }] }
-         */
-
-    }, {
-        key: 'decrypt',
-        value: function decrypt() {
-            var _this3 = this;
-
-            var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-                message = _ref4.message,
-                privateKey = _ref4.privateKey,
-                publicKeys = _ref4.publicKeys,
-                sessionKey = _ref4.sessionKey,
-                password = _ref4.password,
-                _ref4$format = _ref4.format,
-                format = _ref4$format === undefined ? 'utf8' : _ref4$format,
-                _ref4$signature = _ref4.signature,
-                signature = _ref4$signature === undefined ? null : _ref4$signature;
-
-            console.log(arguments[0]);
-            return new Promise(function (resolve) {
-                _this3._listenerQueue.queueListener(function (response) {
-                    resolve(response.data.decrypt);
-                });
-
-                var request = {
-                    "action": "decrypt",
-                    "data": {
-                        "decrypt": {
-                            "message": message, //TODO
-                            "public_keys": toArray(publicKeys),
-                            "private_key": privateKey ? privateKey.primaryKey.fingerprint : null,
-                            "format": format,
-                            "signature": null //TODO
-                        }
-                    }
-                };
-                console.info('sending message', request);
-                _this3._port.postMessage(request);
-            });
-        }
-    }]);
-
-    return OpenPgpDropIn;
-}(wrapModule(openpgp));
-
-exports.default = new OpenPgpDropIn();
+    return this.getWorker().sendToHostApp(request).then(function (response) {
+        return response.data.decrypt;
+    });
+}
 
 
-},{"openPgp":3}],3:[function(require,module,exports){
+},{"./async_proxy_dropin":2,"openpgp":5}],5:[function(require,module,exports){
 (function (global){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.openpgp = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 /*! asmCrypto Lite v1.1.0, (c) 2013 Artem S Vybornov, opensource.org/licenses/MIT */

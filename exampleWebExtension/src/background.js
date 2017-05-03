@@ -1,6 +1,6 @@
 //var openpgp = require("openpgp");
 
-var openpgp = require("../../node_module/dist/src/opengpg-dropin").default;
+var openpgp = require("../../node_module/dist/src/index");
 
 console.log('loaded', openpgp);
 
@@ -17,7 +17,7 @@ port.onDisconnect.addListener(function () {
 browser.browserAction.onClicked.addListener(function () {
     console.log('clicked');
 
-    var options, encrypted;
+    var options;
 
     var pubkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1
@@ -87,9 +87,9 @@ S0xTBiXNz+p7utW+MC6ynHDrzio3
     };
 
     openpgp.encrypt(options)
-        .then(function (ciphertext) {
-            console.log("ciphertext", ciphertext);
-            return ciphertext.data;
+        .then(function (encrypted) {
+            console.log("encrypted", encrypted);
+            return encrypted.data;
         })
         .then(function (encrypted) {
             options = {
@@ -100,11 +100,10 @@ S0xTBiXNz+p7utW+MC6ynHDrzio3
 
             console.log(options);
             return openpgp.decrypt(options);
-
         })
-        .then(function (plaintext) {
-            console.log("plaintext", plaintext);
-            return plaintext.data;
+        .then(function (decrypted) {
+            console.log("decrypted", decrypted);
+            return decrypted.data;
         });
 
 
