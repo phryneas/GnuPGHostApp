@@ -1,8 +1,8 @@
-var openpgp = require("openpgp");
+//var openpgp = require("openpgp");
 
-var dropin = require("../../node_module/src/opengpg-dropin");
+var openpgp = require("../../node_module/dist/src/opengpg-dropin").default;
 
-console.log('loaded');
+console.log('loaded', openpgp);
 
 var browser = browser || chrome;
 
@@ -18,7 +18,6 @@ browser.browserAction.onClicked.addListener(function () {
     console.log('clicked');
 
     var options, encrypted;
-
 
     var pubkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: GnuPG v1
@@ -87,53 +86,26 @@ S0xTBiXNz+p7utW+MC6ynHDrzio3
         privateKeys: privKeyObj // for signing (optional)
     };
 
-    openpgp.encrypt(options).then(function (ciphertext) {
-        console.log("ciphertext", ciphertext);
-        encrypted = ciphertext.data;
-    }).then(function () {
+    openpgp.encrypt(options)
+        .then(function (ciphertext) {
+            console.log("ciphertext", ciphertext);
+            return ciphertext.data;
+        })
+        .then(function (encrypted) {
+            options = {
+                message: encrypted, //TODO openpgp.message.readArmored(encrypted),     // parse armored message
+                publicKeys: openpgp.key.readArmored(pubkey).keys,    // for verification (optional)
+                privateKey: privKeyObj // for decryption
+            };
 
-        options = {
-            message: openpgp.message.readArmored(encrypted),     // parse armored message
-            publicKeys: openpgp.key.readArmored(pubkey).keys,    // for verification (optional)
-            privateKey: privKeyObj // for decryption
-        };
+            console.log(options);
+            return openpgp.decrypt(options);
 
-        console.log(options);
-
-        return openpgp.decrypt(options).then(function (plaintext) {
+        })
+        .then(function (plaintext) {
             console.log("plaintext", plaintext);
-            encrypted = plaintext.data;
+            return plaintext.data;
         });
 
-    }).then(function () {
-        options = {
-            data: 'Hello, World!',                             // input as String (or Uint8Array)
-            publicKeys: openpgp.key.readArmored(pubkey).keys,  // for encryption
-            privateKeys: privKeyObj // for signing (optional)
-        };
-
-        console.log(options);
-
-        dropin.initWorker();
-        return dropin.encrypt(options).then(function (response) {
-            encrypted = response.data;
-            console.log("response", response);
-        });
-    }).then(function () {
-
-        options = {
-            message: openpgp.message.readArmored(encrypted),     // parse armored message
-            publicKeys: openpgp.key.readArmored(pubkey).keys,    // for verification (optional)
-            privateKey: privKeyObj // for decryption
-        }; 
-
-        console.log(options);
-
-        dropin.initWorker();
-        return dropin.decrypt(options).then(function (plaintext) {
-            console.log("plaintext", plaintext);
-        });
-
-    })
 
 });

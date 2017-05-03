@@ -1,4 +1,485 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+//var openpgp = require("openpgp");
+
+var openpgp = require("../../node_module/dist/src/opengpg-dropin").default;
+
+console.log('loaded', openpgp);
+
+var browser = browser || chrome;
+
+var port = browser.runtime.connectNative('de.phryneas.gpg.hostapp');
+port.onMessage.addListener(function (msg) {
+    console.log("Received", msg);
+});
+port.onDisconnect.addListener(function () {
+    console.log("Disconnected");
+});
+
+browser.browserAction.onClicked.addListener(function () {
+    console.log('clicked');
+
+    var options, encrypted;
+
+    var pubkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1
+
+mI0EWQROJwEEAMtfVOyRBvd1BToqLxBnpbFRoZ3JebXjevOrojC21t9Qcxf7oTSi
+LevdzvuUQUUF9zoJY0G83UEYLAQHwzaqVYRi9kEfkAX4jYfvuRxCCBNwYtsXVC8b
+XfQQLVJhVjuhPKtV2AYmsGyJgpVvKjU3HkC7CRr+6PKhugenfaMaXqblABEBAAG0
+QlRlc3QgS2V5IChvbmx5IGZvciB0ZXN0IHB1cnBvc2VzKSA8Z251cGdob3N0YXBw
+X3Rlc3RzQGV4YW1wbGUuY29tPoi4BBMBAgAiBQJZBE4nAhsDBgsJCAcDAgYVCAIJ
+CgsEFgIDAQIeAQIXgAAKCRAGfRdmFX9klfwNBACc2LaE6OFyBiXra405jujKociE
+TNWYveuIB7p6mGnh+ssoswWPKd02uO5OxQayBbM3WA0mDPe3PtBXwbjFG6QnSv5C
+eVZejtQvax06uyw48jd1naqz609iNx/buc5NP6rQ50WzmaPk6C3anPd3nICOZufz
+TuQd0ZILly1xS8bRH7iNBFkETicBBADB7ZHODrmDqJ5mY4ybQI7FN1bTdh24Hpje
+FcHTRrvQApN4Ttm/IM07cvKWUppQwuzMwvpjxPPloB/oImpr36wDPmDN6lotsQK8
+W5HHKTEAUoDJoLGXgVuafnetr+q8hfvi/jsuw1GKGU2cJkQdm9Bw7z1ppmlTLprh
+TbY3s7GsvQARAQABiJ8EGAECAAkFAlkETicCGwwACgkQBn0XZhV/ZJU8cwP/bTIo
+cM3fr3iWU3bdo1zmXnzSf7kIsrHUTfZqshfJyDIYJgQaTdGav9Uq/Ncwjxlrnw40
+DuIouEvacGLPXUUnDMPXKBPPRwNvVdrKx1fZVH4jERI16P0Fjq2u2Gisvb3WBJMM
+lyEL7Mb18KJLTFMGJc3P6nu61b4wLrKccOvOKjc=
+=xXDW
+-----END PGP PUBLIC KEY BLOCK-----
+`;
+    var privkey = `-----BEGIN PGP PRIVATE KEY BLOCK-----
+Version: GnuPG v1
+
+lQHYBFkETicBBADLX1TskQb3dQU6Ki8QZ6WxUaGdyXm143rzq6IwttbfUHMX+6E0
+oi3r3c77lEFFBfc6CWNBvN1BGCwEB8M2qlWEYvZBH5AF+I2H77kcQggTcGLbF1Qv
+G130EC1SYVY7oTyrVdgGJrBsiYKVbyo1Nx5Auwka/ujyoboHp32jGl6m5QARAQAB
+AAP7B8AKyvcd5llByT0pTP0+Lbs4JvyyFDHmkhmk1Slql9kHgc73jjtt95Kc3C6C
+rEA1czM/YpZxchUbPE4VbORh3Ne7AUTNoI1r1Lz0NyCLxJ+iCW2LUp8WH0L4jiAR
+HkOejCxdWDIhQhJ1iLSjIB1FKiPdsxxaM+h44Rn3KLGpmWMCANHix+PvvMm0MvaK
+IDZZlOiZrhrs9iLG14cbpt4idQjUEJraVweEsDRZZIsVY+mYILC9NfIR91PvUdqW
+cIFv/jcCAPgOMdwNnp0nUeubUkZS5BG83oMQ2OJfnzdxzrWo5vY3u2LwgZz/VNWI
+zxYEcVHnJyk3pyIgztniH9rrVSi2lcMB/Ry5r2WCdkj8h9w8C3FLH8YWSloGhIUN
+OfS5V/A0FidK2g/SO15SHqcc72tSWiIfO5teVnHcPpQqXEKVkV+P0GCbBbRCVGVz
+dCBLZXkgKG9ubHkgZm9yIHRlc3QgcHVycG9zZXMpIDxnbnVwZ2hvc3RhcHBfdGVz
+dHNAZXhhbXBsZS5jb20+iLgEEwECACIFAlkETicCGwMGCwkIBwMCBhUIAgkKCwQW
+AgMBAh4BAheAAAoJEAZ9F2YVf2SV/A0EAJzYtoTo4XIGJetrjTmO6MqhyIRM1Zi9
+64gHunqYaeH6yyizBY8p3Ta47k7FBrIFszdYDSYM97c+0FfBuMUbpCdK/kJ5Vl6O
+1C9rHTq7LDjyN3WdqrPrT2I3H9u5zk0/qtDnRbOZo+ToLdqc93ecgI5m5/NO5B3R
+kguXLXFLxtEfnQHYBFkETicBBADB7ZHODrmDqJ5mY4ybQI7FN1bTdh24HpjeFcHT
+RrvQApN4Ttm/IM07cvKWUppQwuzMwvpjxPPloB/oImpr36wDPmDN6lotsQK8W5HH
+KTEAUoDJoLGXgVuafnetr+q8hfvi/jsuw1GKGU2cJkQdm9Bw7z1ppmlTLprhTbY3
+s7GsvQARAQABAAP5AdWph3WEM8aomPdgISffMeZwH9gCN/eyIoe6KbGFnVYo5v53
++OLqjiFsQhfN9e2iJ93AWKlIVWfKZXvN3e9jxS/d0UYBCUOcjVvjbpXRJd0WQL8S
+3d8MVs3Vga4t2RJlNRLfXk7lwbyerOvXkschtr5WYm7BEdF9sNaNhOSI1dECANZO
+UUSf57lrsazt38BGjFdidKG4Sf90FHIzilwejT3+tp+vaj3Dj/nvtPgtQufJvuhV
+5rrTqNspr0yXA3Swj8cCAOeoUCClGsH9CoARimdf2XVKKyhshoXyUfNdHNnF4zTh
+UKv9Pc4y4F31NxHOwM/mil35XHaGkH6WOIKgQkM+51sB/1GlwLiZ3hzrEJDQFver
+sTOv4h4FpxGLoLmgCTFhDwyrtRs4vVohkZVJWz3Jr5SjNsI1dRqsuIbqpfG4ZwQf
+QkarkIifBBgBAgAJBQJZBE4nAhsMAAoJEAZ9F2YVf2SVPHMD/20yKHDN3694llN2
+3aNc5l580n+5CLKx1E32arIXycgyGCYEGk3Rmr/VKvzXMI8Za58ONA7iKLhL2nBi
+z11FJwzD1ygTz0cDb1XaysdX2VR+IxESNej9BY6trthorL291gSTDJchC+zG9fCi
+S0xTBiXNz+p7utW+MC6ynHDrzio3
+=ARxr
+-----END PGP PRIVATE KEY BLOCK-----`;
+    var passphrase = '';
+
+    var privKeyObj = openpgp.key.readArmored(privkey).keys[0];
+    privKeyObj.decrypt(null);
+
+    options = {
+        data: 'Hello, World!', // input as String (or Uint8Array)
+        publicKeys: openpgp.key.readArmored(pubkey).keys, // for encryption
+        privateKeys: privKeyObj // for signing (optional)
+    };
+
+    openpgp.encrypt(options).then(function (ciphertext) {
+        console.log("ciphertext", ciphertext);
+        return ciphertext.data;
+    }).then(function (encrypted) {
+        options = {
+            message: encrypted, //TODO openpgp.message.readArmored(encrypted),     // parse armored message
+            publicKeys: openpgp.key.readArmored(pubkey).keys, // for verification (optional)
+            privateKey: privKeyObj // for decryption
+        };
+
+        console.log(options);
+        return openpgp.decrypt(options);
+    }).then(function (plaintext) {
+        console.log("plaintext", plaintext);
+        return plaintext.data;
+    });
+});
+
+},{"../../node_module/dist/src/opengpg-dropin":2}],2:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _slicedToArray = function () {
+    function sliceIterator(arr, i) {
+        var _arr = [];var _n = true;var _d = false;var _e = undefined;try {
+            for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+                _arr.push(_s.value);if (i && _arr.length === i) break;
+            }
+        } catch (err) {
+            _d = true;_e = err;
+        } finally {
+            try {
+                if (!_n && _i["return"]) _i["return"]();
+            } finally {
+                if (_d) throw _e;
+            }
+        }return _arr;
+    }return function (arr, i) {
+        if (Array.isArray(arr)) {
+            return arr;
+        } else if (Symbol.iterator in Object(arr)) {
+            return sliceIterator(arr, i);
+        } else {
+            throw new TypeError("Invalid attempt to destructure non-iterable instance");
+        }
+    };
+}();
+
+var _createClass = function () {
+    function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+    };
+}(); /*jshint esversion: 6 */
+
+var _openPgp = require('openPgp');
+
+var openpgp = _interopRequireWildcard(_openPgp);
+
+function _interopRequireWildcard(obj) {
+    if (obj && obj.__esModule) {
+        return obj;
+    } else {
+        var newObj = {};if (obj != null) {
+            for (var key in obj) {
+                if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
+            }
+        }newObj.default = obj;return newObj;
+    }
+}
+
+function _possibleConstructorReturn(self, call) {
+    if (!self) {
+        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
+
+function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+        throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+    }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
+function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+    }
+}
+
+/*
+import {Key} from 'openpgp/src/key';
+import {Signature} from 'openpgp/src/signature';
+import {Message} from 'openpgp/src/message';
+*/
+
+/**
+ * @property {function[]} queue
+ */
+var ListenerQueue = function () {
+    function ListenerQueue() {
+        _classCallCheck(this, ListenerQueue);
+
+        this.queue = [];
+    }
+
+    _createClass(ListenerQueue, [{
+        key: 'listener',
+        value: function listener() {
+            if (this.queue.length === 0) return;
+            var callback = this.queue.shift();
+            callback.apply(undefined, arguments);
+        }
+    }, {
+        key: 'queueListener',
+        value: function queueListener(listener) {
+            this.queue.push(listener);
+        }
+    }]);
+
+    return ListenerQueue;
+}();
+
+/**
+ *
+ * @param {Key[]} keys
+ * @returns {Array}
+ */
+
+function toArray(keys) {
+    if (!Array.isArray(keys)) {
+        if (!keys) {
+            keys = [];
+        } else {
+            keys = [keys];
+        }
+    }
+    return keys.map( /** @param {Key} key*/function (key) {
+        return key.primaryKey.fingerprint;
+    });
+}
+
+/**
+ * @param module
+ * @returns {Function}
+ */
+function wrapModule(module) {
+    var ret = function ret() {};
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+        for (var _iterator = Object.entries(module)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var _ref = _step.value;
+
+            var _ref2 = _slicedToArray(_ref, 2);
+
+            var key = _ref2[0];
+            var value = _ref2[1];
+
+            ret.prototype[key] = value;
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally {
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+            }
+        } finally {
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+
+    return ret;
+}
+
+var wrapped = wrapModule(openpgp);
+
+/**
+ * @property {OpenPgpDropIn} delegateTo
+ */
+
+var Worker = function () {
+    function Worker(delegateTo) {
+        _classCallCheck(this, Worker);
+
+        this.delegateTo = delegateTo;
+    }
+
+    _createClass(Worker, [{
+        key: 'delegate',
+        value: function delegate(method, options) {
+            if (typeof this.delegateTo[method] !== 'function') {
+                return Promise.resolve({ event: 'method-return', err: 'Unknown Worker Event' });
+            }
+            return this.delegateTo[method](options);
+        }
+    }]);
+
+    return Worker;
+}();
+
+/**
+ * @property {runtime.Port} _port
+ * @property {ListenerQueue} _listenerQueue
+ * @extends {openpgp}
+ */
+
+var OpenPgpDropIn = function (_wrapModule) {
+    _inherits(OpenPgpDropIn, _wrapModule);
+
+    function OpenPgpDropIn() {
+        _classCallCheck(this, OpenPgpDropIn);
+
+        var _this = _possibleConstructorReturn(this, (OpenPgpDropIn.__proto__ || Object.getPrototypeOf(OpenPgpDropIn)).call(this));
+
+        var browser = window.browser || window.chrome;
+
+        _this._listenerQueue = new ListenerQueue();
+        _this._port = browser.runtime.connectNative('de.phryneas.gpg.hostapp');
+        console.info("hostApp connected");
+
+        _this._port.onDisconnect.addListener(function () {
+            console.info("hostApp disconnected");
+        });
+
+        _this._port.onMessage.addListener(function (data) {
+            return console.log(data);
+        });
+        _this._port.onMessage.addListener(_this._listenerQueue.listener.bind(_this._listenerQueue));
+        return _this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+
+    _createClass(OpenPgpDropIn, [{
+        key: 'initWorker',
+        value: function initWorker() {
+            return true;
+        }
+
+        /**
+         * @inheritDoc
+         */
+
+    }, {
+        key: 'getWorker',
+        value: function getWorker() {
+            return new Worker(this);
+        }
+
+        /**
+         * @see openpgp.encrypt
+         * Encrypts message text/data with public keys, passwords or both at once. At least either public keys or passwords
+         *   must be specified. If private keys are specified, those will be used to sign the message.
+         * @param  {String|Uint8Array} data           text/data to be encrypted as JavaScript binary string or Uint8Array
+         * @param  {Key|Array<Key>} publicKeys        (optional) array of keys or single key, used to encrypt the message
+         * @param  {Key|Array<Key>} privateKeys       (optional) private keys for signing. If omitted message will not be signed
+         * @param  {String|Array<String>} passwords   (optional) array of passwords or a single password to encrypt the message
+         * @param  {String} filename                  (optional) a filename for the literal data packet
+         * @param  {Boolean} armor                    (optional) if the return values should be ascii armored or the message/signature objects
+         * @param  {Boolean} detached                 (optional) if the signature should be detached (if true, signature will be added to returned object)
+         * @param  {Signature} signature              (optional) a detached signature to add to the encrypted message
+         * @return {Promise<Object>}                  encrypted (and optionally signed message) in the form:
+         *                                              {data: ASCII armored message if 'armor' is true,
+         *                                                message: full Message object if 'armor' is false, signature: detached signature if 'detached' is true}
+         */
+
+    }, {
+        key: 'encrypt',
+        value: function encrypt() {
+            var _this2 = this;
+
+            var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                data = _ref3.data,
+                _ref3$publicKeys = _ref3.publicKeys,
+                publicKeys = _ref3$publicKeys === undefined ? [] : _ref3$publicKeys,
+                _ref3$privateKeys = _ref3.privateKeys,
+                privateKeys = _ref3$privateKeys === undefined ? [] : _ref3$privateKeys,
+                _ref3$passwords = _ref3.passwords,
+                passwords = _ref3$passwords === undefined ? [] : _ref3$passwords,
+                filename = _ref3.filename,
+                _ref3$armor = _ref3.armor,
+                armor = _ref3$armor === undefined ? true : _ref3$armor,
+                _ref3$detached = _ref3.detached,
+                detached = _ref3$detached === undefined ? false : _ref3$detached,
+                _ref3$signature = _ref3.signature,
+                signature = _ref3$signature === undefined ? null : _ref3$signature;
+
+            return new Promise(function (resolve) {
+                _this2._listenerQueue.queueListener(function (response) {
+                    resolve(response.data.encrypt);
+                });
+
+                var request = {
+                    "action": "encrypt",
+                    "data": {
+                        "encrypt": {
+                            "data_string": null,
+                            "data_bytes": null,
+                            "public_keys": toArray(publicKeys),
+                            "private_keys": toArray(privateKeys),
+                            "armor": armor,
+                            "detached": detached,
+                            "signature": null //TODO
+                        }
+                    }
+                };
+
+                if (typeof data === "string") {
+                    request.data.encrypt.data_string = data;
+                } else {
+                    request.data.encrypt.data_bytes = data;
+                }
+                console.info('sending message', request);
+                _this2._port.postMessage(request);
+            });
+        }
+
+        /**
+         * Decrypts a message with the user's private key, a session key or a password. Either a private key,
+         *   a session key or a password must be specified.
+         * @param  {Message} message             the message object with the encrypted data
+         * @param  {Key} privateKey              (optional) private key with decrypted secret key data or session key
+         * @param  {Key|Array<Key>} publicKeys   (optional) array of public keys or single key, to verify signatures
+         * @param  {Object} sessionKey           (optional) session key in the form: { data:Uint8Array, algorithm:String }
+         * @param  {String} password             (optional) single password to decrypt the message
+         * @param  {String} format               (optional) return data format either as 'utf8' or 'binary'
+         * @param  {Signature} signature         (optional) detached signature for verification
+         * @return {Promise<Object>}             decrypted and verified message in the form:
+         *                                         { data:Uint8Array|String, filename:String, signatures:[{ keyid:String, valid:Boolean }] }
+         */
+
+    }, {
+        key: 'decrypt',
+        value: function decrypt() {
+            var _this3 = this;
+
+            var _ref4 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+                message = _ref4.message,
+                privateKey = _ref4.privateKey,
+                publicKeys = _ref4.publicKeys,
+                sessionKey = _ref4.sessionKey,
+                password = _ref4.password,
+                _ref4$format = _ref4.format,
+                format = _ref4$format === undefined ? 'utf8' : _ref4$format,
+                _ref4$signature = _ref4.signature,
+                signature = _ref4$signature === undefined ? null : _ref4$signature;
+
+            console.log(arguments[0]);
+            return new Promise(function (resolve) {
+                _this3._listenerQueue.queueListener(function (response) {
+                    resolve(response.data.decrypt);
+                });
+
+                var request = {
+                    "action": "decrypt",
+                    "data": {
+                        "decrypt": {
+                            "message": message, //TODO
+                            "public_keys": toArray(publicKeys),
+                            "private_key": privateKey ? privateKey.primaryKey.fingerprint : null,
+                            "format": format,
+                            "signature": null //TODO
+                        }
+                    }
+                };
+                console.info('sending message', request);
+                _this3._port.postMessage(request);
+            });
+        }
+    }]);
+
+    return OpenPgpDropIn;
+}(wrapModule(openpgp));
+
+exports.default = new OpenPgpDropIn();
+
+
+},{"openPgp":3}],3:[function(require,module,exports){
 (function (global){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.openpgp = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 /*! asmCrypto Lite v1.1.0, (c) 2013 Artem S Vybornov, opensource.org/licenses/MIT */
@@ -21165,307 +21646,4 @@ AsyncProxy.prototype.delegate = function (method, options) {
 },{"../crypto":24,"../packet":47,"../util.js":70}]},{},[37])(37)
 });
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],2:[function(require,module,exports){
-var openpgp = require("openpgp");
-
-var dropin = require("../../node_module/src/opengpg-dropin");
-
-console.log('loaded');
-
-var browser = browser || chrome;
-
-var port = browser.runtime.connectNative('de.phryneas.gpg.hostapp');
-port.onMessage.addListener(function (msg) {
-    console.log("Received", msg);
-});
-port.onDisconnect.addListener(function () {
-    console.log("Disconnected");
-});
-
-browser.browserAction.onClicked.addListener(function () {
-    console.log('clicked');
-
-    var options, encrypted;
-
-    var pubkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
-Version: GnuPG v1
-
-mI0EWQROJwEEAMtfVOyRBvd1BToqLxBnpbFRoZ3JebXjevOrojC21t9Qcxf7oTSi
-LevdzvuUQUUF9zoJY0G83UEYLAQHwzaqVYRi9kEfkAX4jYfvuRxCCBNwYtsXVC8b
-XfQQLVJhVjuhPKtV2AYmsGyJgpVvKjU3HkC7CRr+6PKhugenfaMaXqblABEBAAG0
-QlRlc3QgS2V5IChvbmx5IGZvciB0ZXN0IHB1cnBvc2VzKSA8Z251cGdob3N0YXBw
-X3Rlc3RzQGV4YW1wbGUuY29tPoi4BBMBAgAiBQJZBE4nAhsDBgsJCAcDAgYVCAIJ
-CgsEFgIDAQIeAQIXgAAKCRAGfRdmFX9klfwNBACc2LaE6OFyBiXra405jujKociE
-TNWYveuIB7p6mGnh+ssoswWPKd02uO5OxQayBbM3WA0mDPe3PtBXwbjFG6QnSv5C
-eVZejtQvax06uyw48jd1naqz609iNx/buc5NP6rQ50WzmaPk6C3anPd3nICOZufz
-TuQd0ZILly1xS8bRH7iNBFkETicBBADB7ZHODrmDqJ5mY4ybQI7FN1bTdh24Hpje
-FcHTRrvQApN4Ttm/IM07cvKWUppQwuzMwvpjxPPloB/oImpr36wDPmDN6lotsQK8
-W5HHKTEAUoDJoLGXgVuafnetr+q8hfvi/jsuw1GKGU2cJkQdm9Bw7z1ppmlTLprh
-TbY3s7GsvQARAQABiJ8EGAECAAkFAlkETicCGwwACgkQBn0XZhV/ZJU8cwP/bTIo
-cM3fr3iWU3bdo1zmXnzSf7kIsrHUTfZqshfJyDIYJgQaTdGav9Uq/Ncwjxlrnw40
-DuIouEvacGLPXUUnDMPXKBPPRwNvVdrKx1fZVH4jERI16P0Fjq2u2Gisvb3WBJMM
-lyEL7Mb18KJLTFMGJc3P6nu61b4wLrKccOvOKjc=
-=xXDW
------END PGP PUBLIC KEY BLOCK-----
-`;
-    var privkey = `-----BEGIN PGP PRIVATE KEY BLOCK-----
-Version: GnuPG v1
-
-lQHYBFkETicBBADLX1TskQb3dQU6Ki8QZ6WxUaGdyXm143rzq6IwttbfUHMX+6E0
-oi3r3c77lEFFBfc6CWNBvN1BGCwEB8M2qlWEYvZBH5AF+I2H77kcQggTcGLbF1Qv
-G130EC1SYVY7oTyrVdgGJrBsiYKVbyo1Nx5Auwka/ujyoboHp32jGl6m5QARAQAB
-AAP7B8AKyvcd5llByT0pTP0+Lbs4JvyyFDHmkhmk1Slql9kHgc73jjtt95Kc3C6C
-rEA1czM/YpZxchUbPE4VbORh3Ne7AUTNoI1r1Lz0NyCLxJ+iCW2LUp8WH0L4jiAR
-HkOejCxdWDIhQhJ1iLSjIB1FKiPdsxxaM+h44Rn3KLGpmWMCANHix+PvvMm0MvaK
-IDZZlOiZrhrs9iLG14cbpt4idQjUEJraVweEsDRZZIsVY+mYILC9NfIR91PvUdqW
-cIFv/jcCAPgOMdwNnp0nUeubUkZS5BG83oMQ2OJfnzdxzrWo5vY3u2LwgZz/VNWI
-zxYEcVHnJyk3pyIgztniH9rrVSi2lcMB/Ry5r2WCdkj8h9w8C3FLH8YWSloGhIUN
-OfS5V/A0FidK2g/SO15SHqcc72tSWiIfO5teVnHcPpQqXEKVkV+P0GCbBbRCVGVz
-dCBLZXkgKG9ubHkgZm9yIHRlc3QgcHVycG9zZXMpIDxnbnVwZ2hvc3RhcHBfdGVz
-dHNAZXhhbXBsZS5jb20+iLgEEwECACIFAlkETicCGwMGCwkIBwMCBhUIAgkKCwQW
-AgMBAh4BAheAAAoJEAZ9F2YVf2SV/A0EAJzYtoTo4XIGJetrjTmO6MqhyIRM1Zi9
-64gHunqYaeH6yyizBY8p3Ta47k7FBrIFszdYDSYM97c+0FfBuMUbpCdK/kJ5Vl6O
-1C9rHTq7LDjyN3WdqrPrT2I3H9u5zk0/qtDnRbOZo+ToLdqc93ecgI5m5/NO5B3R
-kguXLXFLxtEfnQHYBFkETicBBADB7ZHODrmDqJ5mY4ybQI7FN1bTdh24HpjeFcHT
-RrvQApN4Ttm/IM07cvKWUppQwuzMwvpjxPPloB/oImpr36wDPmDN6lotsQK8W5HH
-KTEAUoDJoLGXgVuafnetr+q8hfvi/jsuw1GKGU2cJkQdm9Bw7z1ppmlTLprhTbY3
-s7GsvQARAQABAAP5AdWph3WEM8aomPdgISffMeZwH9gCN/eyIoe6KbGFnVYo5v53
-+OLqjiFsQhfN9e2iJ93AWKlIVWfKZXvN3e9jxS/d0UYBCUOcjVvjbpXRJd0WQL8S
-3d8MVs3Vga4t2RJlNRLfXk7lwbyerOvXkschtr5WYm7BEdF9sNaNhOSI1dECANZO
-UUSf57lrsazt38BGjFdidKG4Sf90FHIzilwejT3+tp+vaj3Dj/nvtPgtQufJvuhV
-5rrTqNspr0yXA3Swj8cCAOeoUCClGsH9CoARimdf2XVKKyhshoXyUfNdHNnF4zTh
-UKv9Pc4y4F31NxHOwM/mil35XHaGkH6WOIKgQkM+51sB/1GlwLiZ3hzrEJDQFver
-sTOv4h4FpxGLoLmgCTFhDwyrtRs4vVohkZVJWz3Jr5SjNsI1dRqsuIbqpfG4ZwQf
-QkarkIifBBgBAgAJBQJZBE4nAhsMAAoJEAZ9F2YVf2SVPHMD/20yKHDN3694llN2
-3aNc5l580n+5CLKx1E32arIXycgyGCYEGk3Rmr/VKvzXMI8Za58ONA7iKLhL2nBi
-z11FJwzD1ygTz0cDb1XaysdX2VR+IxESNej9BY6trthorL291gSTDJchC+zG9fCi
-S0xTBiXNz+p7utW+MC6ynHDrzio3
-=ARxr
------END PGP PRIVATE KEY BLOCK-----`;
-    var passphrase = '';
-
-    var privKeyObj = openpgp.key.readArmored(privkey).keys[0];
-    privKeyObj.decrypt(null);
-
-    options = {
-        data: 'Hello, World!', // input as String (or Uint8Array)
-        publicKeys: openpgp.key.readArmored(pubkey).keys, // for encryption
-        privateKeys: privKeyObj // for signing (optional)
-    };
-
-    openpgp.encrypt(options).then(function (ciphertext) {
-        console.log("ciphertext", ciphertext);
-        encrypted = ciphertext.data;
-    }).then(function () {
-
-        options = {
-            message: openpgp.message.readArmored(encrypted), // parse armored message
-            publicKeys: openpgp.key.readArmored(pubkey).keys, // for verification (optional)
-            privateKey: privKeyObj // for decryption
-        };
-
-        console.log(options);
-
-        return openpgp.decrypt(options).then(function (plaintext) {
-            console.log("plaintext", plaintext);
-            encrypted = plaintext.data;
-        });
-    }).then(function () {
-        options = {
-            data: 'Hello, World!', // input as String (or Uint8Array)
-            publicKeys: openpgp.key.readArmored(pubkey).keys, // for encryption
-            privateKeys: privKeyObj // for signing (optional)
-        };
-
-        console.log(options);
-
-        dropin.initWorker();
-        return dropin.encrypt(options).then(function (response) {
-            encrypted = response.data;
-            console.log("response", response);
-        });
-    }).then(function () {
-
-        options = {
-            message: openpgp.message.readArmored(encrypted), // parse armored message
-            publicKeys: openpgp.key.readArmored(pubkey).keys, // for verification (optional)
-            privateKey: privKeyObj // for decryption
-        };
-
-        console.log(options);
-
-        dropin.initWorker();
-        return dropin.decrypt(options).then(function (plaintext) {
-            console.log("plaintext", plaintext);
-        });
-    });
-});
-
-},{"../../node_module/src/opengpg-dropin":3,"openpgp":1}],3:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-exports.initWorker = initWorker;
-exports.encrypt = encrypt;
-exports.decrypt = decrypt;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var port = void 0,
-    listenerQueue = void 0;
-
-/**
- * @property {function[]} queue
- */
-
-var ListenerQueue = function () {
-    function ListenerQueue() {
-        _classCallCheck(this, ListenerQueue);
-
-        this.queue = [];
-    }
-
-    _createClass(ListenerQueue, [{
-        key: "listener",
-        value: function listener() {
-            if (this.queue.length == 0) return;
-            var callback = this.queue.shift();
-            callback.apply(undefined, arguments);
-        }
-    }, {
-        key: "queueListener",
-        value: function queueListener(listener) {
-            this.queue.push(listener);
-        }
-    }]);
-
-    return ListenerQueue;
-}();
-
-function initWorker() {
-    if (port) {
-        return true;
-    }
-
-    var browser = browser || chrome;
-    if (!browser || !browser.runtime || typeof browser.runtime.connectNative != "function") {
-        return false;
-    }
-
-    listenerQueue = new ListenerQueue();
-    port = browser.runtime.connectNative('de.phryneas.gpg.hostapp');
-    console.info("hostApp connected");
-
-    if (!port) {
-        return false;
-    }
-
-    port.onDisconnect.addListener(function () {
-        console.info("hostApp disconnected");
-    });
-
-    port.onMessage.addListener(listenerQueue.listener.bind(listenerQueue));
-
-    return true;
-}
-
-function convertKeys(keys) {
-    if (!Array.isArray(keys)) {
-        if (!keys) {
-            keys = [];
-        } else {
-            keys = [keys];
-        }
-    }
-    return keys.map(function (key) {
-        return key.primaryKey.fingerprint;
-    });
-}
-
-function encrypt(_ref) {
-    var data = _ref.data,
-        _ref$publicKeys = _ref.publicKeys,
-        publicKeys = _ref$publicKeys === undefined ? [] : _ref$publicKeys,
-        _ref$privateKeys = _ref.privateKeys,
-        privateKeys = _ref$privateKeys === undefined ? [] : _ref$privateKeys,
-        _ref$passwords = _ref.passwords,
-        passwords = _ref$passwords === undefined ? [] : _ref$passwords,
-        filename = _ref.filename,
-        _ref$armor = _ref.armor,
-        armor = _ref$armor === undefined ? true : _ref$armor,
-        _ref$detached = _ref.detached,
-        detached = _ref$detached === undefined ? false : _ref$detached,
-        _ref$signature = _ref.signature,
-        signature = _ref$signature === undefined ? null : _ref$signature;
-
-    return new Promise(function (resolve) {
-        listenerQueue.queueListener(function (response) {
-            console.log("listener received:", response);
-            resolve({ data: response.data.encrypt.data });
-        });
-
-        var message = {
-            "action": "encrypt",
-            "data": {
-                "encrypt": {
-                    "data_string": null,
-                    "data_bytes": null,
-                    "public_keys": convertKeys(publicKeys),
-                    "private_keys": convertKeys(privateKeys),
-                    "armor": armor,
-                    "detached": detached,
-                    "signature": null //TODO
-                }
-            }
-        };
-
-        if (typeof data == "string") {
-            message.data.encrypt.data_string = data;
-        } else {
-            message.data.encrypt.data_bytes = data;
-        }
-
-        port.postMessage(message);
-    });
-}
-
-function decrypt(_ref2) {
-    var message = _ref2.message,
-        privateKey = _ref2.privateKey,
-        publicKeys = _ref2.publicKeys,
-        sessionKey = _ref2.sessionKey,
-        password = _ref2.password,
-        _ref2$format = _ref2.format,
-        format = _ref2$format === undefined ? 'utf8' : _ref2$format,
-        _ref2$signature = _ref2.signature,
-        signature = _ref2$signature === undefined ? null : _ref2$signature;
-
-    return new Promise(function (resolve) {
-        listenerQueue.queueListener(function (response) {
-            console.log("listener received:", response);
-            resolve({ data: response.data.decrypt.data });
-        });
-
-        var message = {
-            "action": "decrypt",
-            "data": {
-                "decrypt": {
-                    "message": format == 'utf-8' ? message : message, //TODO?
-                    "public_keys": convertKeys(publicKeys),
-                    "private_key": privateKey ? privateKey.primaryKey.fingerprint : null,
-                    "format": format,
-                    "signature": null //TODO
-                }
-            }
-        };
-
-        port.postMessage(message);
-    });
-}
-
-},{}]},{},[2]);
+},{}]},{},[1]);
