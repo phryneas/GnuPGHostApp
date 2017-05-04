@@ -13,18 +13,21 @@ import (
 // privateKey  //Key 	(optional) private key with decrypted secret key Data or session key
 // sessionKey //Object 	(optional) session key in the form: { Data:Uint8Array, algorithm:String }
 // password   string //String 	(optional) single password to decrypt the Message
-// PublicKeys []string //Key | Array.<Key> 	(optional) array of public keys or single key, to verify Signatures
+//
 
 type OpenPgpJsDecryptRequest struct {
-	Message string  `json:"Message"`
+	Message string  `json:"message"`
 	//Message 	the Message object with the encrypted Data
 	// passed as Armored String
-	Format string `json:"Format"`
+	// TODO: allow for byte[] data
+	Format string `json:"format"`
 	//String 	(optional) return Data Format either as 'utf8' or 'binary'
 	// one of 'utf8' or 'binary'
-	Signature string  `json:"Signature"`
+	Signature string  `json:"signature"`
 	//Signature 	(optional) Detached Signature for verification
 	// passed as Armored String
+	PublicKeys []string `json:"public_keys"`
+	//Key | Array.<Key> 	(optional) array of public keys or single key, to verify Signatures
 }
 
 type OpenPgpJsDecryptSignature struct {

@@ -18,10 +18,10 @@ type OpenPgpJsEncryptRequest struct {
 	DataString  string `json:"data_string"`      //String | Uint8Array 	text/Data to be encrypted as JavaScript binary string or Uint8Array
 	DataBytes   []byte  `json:"data_bytes"`      //String | Uint8Array 	text/Data to be encrypted as JavaScript binary string or Uint8Array
 	PublicKeys  []string `json:"public_keys"`   //Key | Array.<Key> 	(optional) array of keys or single key, used to encrypt the Message
-	PrivateKeys []string  `json:"private_keys"` //Key | Array.<Key> 	(optional) private keys for signing. If omitted Message will not be signed
+	PrivateKeys []string  `json:"private_keys"` //Key | Array.<Key> 	(optional) private keys for signing. If omitted Message will not be signed TODO
 	Armor       bool `json:"armor"`             //Boolean 	(optional) if the return values should be ascii armored or the Message/Signature objects
-	Detached    bool `json:"detached"`          //Boolean 	(optional) if the Signature should be Detached (if true, Signature will be added to returned object)
-	Signature   interface{} `json:"signature"`  //Signature 	(optional) a Detached Signature to add to the encrypted Message
+	Detached    bool `json:"detached"`          //Boolean 	(optional) if the Signature should be Detached (if true, Signature will be added to returned object) TODO
+	Signature   interface{} `json:"signature"`  //Signature 	(optional) a Detached Signature to add to the encrypted Message TODO
 }
 
 func (r OpenPgpJsEncryptRequest) String() string {
