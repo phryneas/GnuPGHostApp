@@ -24,7 +24,7 @@
  * @typedef {Object} DecryptedData
  * @property {string} data_string
  * @property {Uint8Array} data_bytes
- * @property {{keyid:string, valid:boolean}[]} signatures
+ * @property {Array.<{keyid:string, valid:boolean}>} signatures
  */
 
 
@@ -53,8 +53,8 @@ export class Wrappable {
     }
 
     /**
-     * @param {(Wrappable|Object)[]} arr
-     * @returns {Wrappable[]}
+     * @param {Array.<Wrappable|Object>} arr
+     * @returns {Array.<Wrappable>}
      */
     static wrapArray(arr = []){
         return arr.map(this.wrap);
@@ -72,20 +72,20 @@ export class Wrappable {
  * @property {boolean} canCertify
  * @property {boolean} canAuthenticate
  * @property {Validity} ownerTrust
- * @property {SubKey[]} subKeys
- * @property {UserID[]} userIDs
+ * @property {Array.<SubKey>} subKeys
+ * @property {Array.<UserID>} userIDs
  */
 export class Key extends Wrappable {
     /**
      *
-     * @param {(Object|SubKey)[]} subKeys
-     * @param {(Object|UserID)[]} userIDs
+     * @param {Array.<Object|SubKey>} subKeys
+     * @param {Array.<Object|UserID>} userIDs
      */
     constructor({subKeys, userIDs} = {}) {
         super();
         if (this.constructor === Key) {
             this.subKeys = SubKey.wrapArray(subKeys);
-            this.userIDs = UserID.wrapArray(userIDs||[]).map(userID => userID instanceof UserID ? userID : new UserID(userID));
+            this.userIDs = UserID.wrapArray(userIDs);
         }
     }
 

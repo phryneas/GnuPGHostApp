@@ -22,8 +22,8 @@ class NativeOpenGpgMeClient {
 
     /**
      * @param {string|Uint8Array} data
-     * @param {string[]} public_keys
-     * @param {string[]} private_keys
+     * @param {Array.<string|Key>} public_keys
+     * @param {Array.<string|Key>} private_keys
      * @param {boolean} armor
      * @param {boolean} detached
      * @param {Uint8Array} signature

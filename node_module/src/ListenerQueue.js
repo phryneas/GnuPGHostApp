@@ -1,5 +1,5 @@
 /**
- * @property {function[]} queue
+ * @property {Array.<function>} queue
  */
 export default class ListenerQueue {
     constructor() {
