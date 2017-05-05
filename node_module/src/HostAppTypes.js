@@ -83,7 +83,7 @@ export class Key extends Wrappable {
      */
     constructor({subKeys, userIDs} = {}) {
         super();
-        if (new.target === Key) {
+        if (this.constructor === Key) {
             this.subKeys = SubKey.wrapArray(subKeys);
             this.userIDs = UserID.wrapArray(userIDs||[]).map(userID => userID instanceof UserID ? userID : new UserID(userID));
         }

@@ -1,3 +1,4 @@
+import "babel-polyfill";
 import ListenerQueue from './ListenerQueue';
 import {Validity, Key, SubKey, UserID} from './HostAppTypes';
 
@@ -59,7 +60,6 @@ class NativeOpenGpgMeClient {
             signature
         }).then(response => response.data.decrypt);
     }
-
 
     /**
      * @param {string} action

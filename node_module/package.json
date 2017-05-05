@@ -2,18 +2,15 @@
   "name": "native-opengpgme-client",
   "version": "0.0.1",
   "description": "a library using native messaging with a host app to directly use the gnupg made easy library",
-  "main": "src/NativeOpenGpgMeClient.js",
+  "main": "dist/module.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "grunt test",
+    "build": "grunt build",
+    "watch": "grunt watch"
   },
   "repository": {
     "type": "git",
     "url": "git+https://todo"
-  },
-  "babel": {
-    "presets": [
-      "env"
-    ]
   },
   "keywords": [
     "pgp",
@@ -32,7 +29,12 @@
   },
   "homepage": "https://todo",
   "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-preset-env": "^1.4.0"
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babelify": "^7.3.0",
+    "grunt": "^1.0.1",
+    "grunt-browserify": "^5.0.0",
+    "grunt-contrib-jasmine": "^1.1.0",
+    "grunt-contrib-watch": "^1.0.0"
   }
 }
