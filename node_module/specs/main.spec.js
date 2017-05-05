@@ -35,8 +35,8 @@ let mockRuntime = {
                             "data": {
                                 "decrypt": {
                                     "signatures": null,
-                                    "data_string": "Hello, World!",
-                                    "data_bytes": null
+                                    "dataString": "Hello, World!",
+                                    "dataBytes": null
                                 }
                             }
                         });

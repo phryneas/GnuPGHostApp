@@ -1,5 +1,3 @@
-
-
 /**
  * @typedef {Object} HostResponse
  * @property {string} status
@@ -22,8 +20,8 @@
 
 /**
  * @typedef {Object} DecryptedData
- * @property {string} data_string
- * @property {Uint8Array} data_bytes
+ * @property {string} dataString
+ * @property {Uint8Array} dataBytes
  * @property {Array.<{keyid:string, valid:boolean}>} signatures
  */
 
@@ -40,7 +38,7 @@ export const Validity = {
 
 
 export class Wrappable {
-    constructor(data){
+    constructor(data) {
         Object.assign(this, data);
     }
 
@@ -48,7 +46,7 @@ export class Wrappable {
      * @param {(Wrappable|Object)} item
      * @returns {Wrappable}
      */
-    static wrap(item = {}){
+    static wrap(item = {}) {
         return item instanceof this ? item : new this(item);
     }
 
@@ -56,7 +54,7 @@ export class Wrappable {
      * @param {Array.<Wrappable|Object>} arr
      * @returns {Array.<Wrappable>}
      */
-    static wrapArray(arr = []){
+    static wrapArray(arr = []) {
         return arr.map(this.wrap);
     }
 }
@@ -93,21 +91,35 @@ export class Key extends Wrappable {
      * @param {string|Key} key
      */
     static getFingerprint(key) {
-        if (key instanceof Key){
+        if (key instanceof Key) {
             return key.fingerprint;
         }
         return key.toString();
     }
 
     /**
-     *
+     * @returns {string|null}
      */
-    get fingerprint(){
-        for (let subKey of this.subKeys){
-            if (!(subKey.revoked || subKey.expired ||subKey.disabled || subKey.invalid)){
+    get fingerprint() {
+        for (let subKey of Object.values(this.subKeys)) {
+            if (!(subKey.revoked || subKey.expired || subKey.disabled || subKey.invalid)) {
                 return subKey.fingerprint;
             }
         }
+        return null;
+    }
+
+    /**
+     * @returns {string|null}
+     */
+    get userId() {
+        for (let firstUserID of Object.values(this.userIDs)) {
+            if (firstUserID  && !firstUserID.revoked && !firstUserID.invalid && firstUserID.name && firstUserID.email){
+                return `${firstUserID.name}${firstUserID.comment ? ` (${firstUserID.comment}) ` : ' '}<${firstUserID.email}>`
+            }
+        }
+
+        return null;
     }
 }
 

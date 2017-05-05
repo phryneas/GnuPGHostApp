@@ -1,10 +1,13 @@
-
 module.exports = function (grunt) {
     grunt.initConfig({
         browserify: {
             dist: {
                 options: {
-                    transform: [["babelify", {presets: [["es2015"]]}]]
+                    browserifyOptions: {
+                        standalone: 'dist'
+                    },
+                    transform: [["babelify", {presets: [["es2015"]]}]],
+                    plugin: [ 'browserify-derequire' ]
                 },
                 files: {
                     "./dist/module.js": ["./src/NativeOpenGpgMeClient.js"],

@@ -26,7 +26,7 @@ type OpenPgpJsDecryptRequest struct {
 	Signature string  `json:"signature"`
 	//Signature 	(optional) Detached Signature for verification
 	// passed as Armored String
-	PublicKeys []string `json:"public_keys"`
+	PublicKeys []string `json:"publicKeys"`
 	//Key | Array.<Key> 	(optional) array of public keys or single key, to verify Signatures
 }
 
@@ -37,8 +37,8 @@ type OpenPgpJsDecryptSignature struct {
 
 type OpenPgpJsDecryptResult struct {
 	Signatures []OpenPgpJsDecryptSignature `json:"signatures"`
-	DataString string `json:"data_string"`
-	DataBytes  []uint8 `json:"data_bytes"`
+	DataString string `json:"dataString"`
+	DataBytes  []uint8 `json:"dataBytes"`
 }
 
 func (r OpenPgpJsDecryptRequest) Execute() (result OpenPgpJsDecryptResult, err error) {

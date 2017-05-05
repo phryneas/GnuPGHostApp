@@ -15,10 +15,10 @@ import (
 //passwords   //String | Array.<String> 	(optional) array of passwords or a single password to encrypt the Message
 //filename    //String 	(optional) a filename for the literal Data packet
 type OpenPgpJsEncryptRequest struct {
-	DataString  string `json:"data_string"`      //String | Uint8Array 	text/Data to be encrypted as JavaScript binary string or Uint8Array
-	DataBytes   []byte  `json:"data_bytes"`      //String | Uint8Array 	text/Data to be encrypted as JavaScript binary string or Uint8Array
-	PublicKeys  []string `json:"public_keys"`   //Key | Array.<Key> 	(optional) array of keys or single key, used to encrypt the Message
-	PrivateKeys []string  `json:"private_keys"` //Key | Array.<Key> 	(optional) private keys for signing. If omitted Message will not be signed TODO
+	DataString  string `json:"dataString"`      //String | Uint8Array 	text/Data to be encrypted as JavaScript binary string or Uint8Array
+	DataBytes   []byte  `json:"dataBytes"`      //String | Uint8Array 	text/Data to be encrypted as JavaScript binary string or Uint8Array
+	PublicKeys  []string `json:"publicKeys"`   //Key | Array.<Key> 	(optional) array of keys or single key, used to encrypt the Message
+	PrivateKeys []string  `json:"privateKeys"` //Key | Array.<Key> 	(optional) private keys for signing. If omitted Message will not be signed TODO
 	Armor       bool `json:"armor"`             //Boolean 	(optional) if the return values should be ascii armored or the Message/Signature objects
 	Detached    bool `json:"detached"`          //Boolean 	(optional) if the Signature should be Detached (if true, Signature will be added to returned object) TODO
 	Signature   interface{} `json:"signature"`  //Signature 	(optional) a Detached Signature to add to the encrypted Message TODO

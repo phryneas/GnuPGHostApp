@@ -22,21 +22,20 @@ class NativeOpenGpgMeClient {
 
     /**
      * @param {string|Uint8Array} data
-     * @param {Array.<string|Key>} public_keys
-     * @param {Array.<string|Key>} private_keys
+     * @param {Array.<string|Key>} publicKeys
+     * @param {Array.<string|Key>} privateKeys
      * @param {boolean} armor
      * @param {boolean} detached
      * @param {Uint8Array} signature
      * @returns {Promise.<EncryptedData>}
      */
-    encrypt({data, public_keys, private_keys, armor, detached, signature} = {}) {
-        let is_bytes = data instanceof Uint8Array;
-
+    encrypt({data, publicKeys, privateKeys, armor, detached, signature} = {}) {
+        let isBytes = data instanceof Uint8Array;
         return this.sendToHostApp("encrypt", {
-            data_string: !is_bytes ? data : "",
-            data_bytes: is_bytes ? data : null,
-            public_keys,
-            private_keys,
+            dataString: !isBytes ? data : "",
+            dataBytes: isBytes ? data : null,
+            publicKeys,
+            privateKeys,
             armor,
             detached,
             signature
@@ -45,17 +44,17 @@ class NativeOpenGpgMeClient {
 
     /**
      * @param {string|Uint8Array} data TODO: Uint8Array
-     * @param public_keys
+     * @param publicKeys
      * @param format
      * @param signature
      * @returns {Promise.<DecryptedData>}
      */
-    decrypt({message, public_keys, private_key, format, signature} = {}) {
-        let is_bytes = message instanceof Uint8Array;
+    decrypt({message, publicKeys, privateKey, format, signature} = {}) {
+        let isBytes = message instanceof Uint8Array;
 
         return this.sendToHostApp("decrypt", {
             message,
-            public_keys,
+            publicKeys,
             format,
             signature
         }).then(response => response.data.decrypt);
