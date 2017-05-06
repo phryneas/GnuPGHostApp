@@ -9,6 +9,7 @@
  * @typedef {Object} HostResponseData
  * @property {EncryptedData} encrypt
  * @property {DecryptedData} decrypt
+ * @property {FindKeysData} findKeys
  */
 
 /**
@@ -23,6 +24,13 @@
  * @property {string} dataString
  * @property {Uint8Array} dataBytes
  * @property {Array.<{keyid:string, valid:boolean}>} signatures
+ */
+
+/** @typedef {string} FingerPrint */
+
+/**
+ * @typedef {Object} FindKeysData
+ * @property {Object<FingerPrint, Key>} keys
  */
 
 
@@ -47,7 +55,7 @@ export class Wrappable {
      * @returns {Wrappable}
      */
     static wrap(item = {}) {
-        return item instanceof this ? item : new this(item);
+        return typeof item instanceof this ? item : new this(item);
     }
 
     /**
@@ -55,7 +63,10 @@ export class Wrappable {
      * @returns {Array.<Wrappable>}
      */
     static wrapArray(arr = []) {
-        return arr.map(this.wrap);
+        if (!Array.isArray(arr)){
+            return this.wrapArray([arr]);
+        }
+        return arr.filter(item => typeof item !== "undefined").map(this.wrap.bind(this));
     }
 }
 
@@ -88,50 +99,37 @@ export class Key extends Wrappable {
     }
 
     /**
-     * @param {string|Key} key
+     * @returns {string|null}
      */
-    static getFingerprint(key) {
-        if (key instanceof Key) {
-            return key.fingerprint;
-        }
-        return key.toString();
+    get fingerPrint() {
+        if (!this.subKeys || this.subKeys.length === 0)
+            return null;
+        return this.subKeys[0].fingerPrint;
     }
 
     /**
      * @returns {string|null}
      */
-    get fingerprint() {
-        for (let subKey of Object.values(this.subKeys)) {
-            if (!(subKey.revoked || subKey.expired || subKey.disabled || subKey.invalid)) {
-                return subKey.fingerprint;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @returns {string|null}
-     */
-    get userId() {
-        for (let firstUserID of Object.values(this.userIDs)) {
-            if (firstUserID  && !firstUserID.revoked && !firstUserID.invalid && firstUserID.name && firstUserID.email){
-                return `${firstUserID.name}${firstUserID.comment ? ` (${firstUserID.comment}) ` : ' '}<${firstUserID.email}>`
-            }
-        }
-
-        return null;
+    get UID() {
+        if (!this.userIDs || this.userIDs.length === 0)
+            return null;
+        return this.userIDs[0].UID;
     }
 }
 
 /**
+ * @property {boolean} revoked
+ * @property {boolean} expired
+ * @property {boolean} disabled
  * @property {boolean} invalid
+ * @property {boolean} secret
  * @property {string} keyID
  * @property {string} fingerPrint
  * @property {Date} created
  * @property {Date} expires
  * @property {string} cardNumber
  */
-export class SubKey extends Key {
+export class SubKey extends Wrappable {
 }
 
 /**

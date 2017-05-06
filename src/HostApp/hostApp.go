@@ -51,9 +51,10 @@ func LoopExecution(stdin io.Reader, stdout io.Writer) (err error) {
 		response.Data.Decrypt, err = request.Data.Decrypt.Execute()
 	case "encrypt":
 		response.Data.Encrypt, err = request.Data.Encrypt.Execute()
+	case "findKeys":
+		response.Data.FindKeys, err = request.Data.FindKeys.Execute()
 	case "test":
 		response.Message = "test"
-		break;
 	default:
 		err = errors.New(fmt.Sprintf("unknown action type '%s'", request.Action))
 	}

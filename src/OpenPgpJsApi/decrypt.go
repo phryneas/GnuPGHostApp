@@ -15,7 +15,7 @@ import (
 // password   string //String 	(optional) single password to decrypt the Message
 //
 
-type OpenPgpJsDecryptRequest struct {
+type DecryptRequest struct {
 	Message string  `json:"message"`
 	//Message 	the Message object with the encrypted Data
 	// passed as Armored String
@@ -30,21 +30,21 @@ type OpenPgpJsDecryptRequest struct {
 	//Key | Array.<Key> 	(optional) array of public keys or single key, to verify Signatures
 }
 
-type OpenPgpJsDecryptSignature struct {
+type DecryptSignature struct {
 	Keyid string `json:"keyid"`
 	Valid bool `json:"valid"`
 }
 
-type OpenPgpJsDecryptResult struct {
-	Signatures []OpenPgpJsDecryptSignature `json:"signatures"`
+type DecryptResult struct {
+	Signatures []DecryptSignature `json:"signatures"`
 	DataString string `json:"dataString"`
 	DataBytes  []uint8 `json:"dataBytes"`
 }
 
-func (r OpenPgpJsDecryptRequest) Execute() (result OpenPgpJsDecryptResult, err error) {
+func (r DecryptRequest) Execute() (result DecryptResult, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			result = OpenPgpJsDecryptResult{}
+			result = DecryptResult{}
 			err = r.(error)
 		}
 	}()
@@ -79,7 +79,7 @@ func (r OpenPgpJsDecryptRequest) Execute() (result OpenPgpJsDecryptResult, err e
 
 	for _, signature := range signatures {
 		validity := (signature.Summary & gpgme.SigSumGreen) != 0
-		result.Signatures = append(result.Signatures, OpenPgpJsDecryptSignature{Keyid: signature.Fingerprint, Valid: validity})
+		result.Signatures = append(result.Signatures, DecryptSignature{Keyid: signature.Fingerprint, Valid: validity})
 	}
 
 	plain.Seek(0, gpgme.SeekSet)

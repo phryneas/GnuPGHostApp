@@ -19,7 +19,7 @@ ZGQMh/4azTesg4Tgcg==
 -----END PGP MESSAGE-----`
 
 func TestOpenPgpJsDecryptRequest_Execute(t *testing.T) {
-	request := OpenPgpJsDecryptRequest{Message: encryptedTest}
+	request := DecryptRequest{Message: encryptedTest}
 	result, err := request.Execute()
 	if err != nil {
 		t.Errorf("encountered error: %s", err)

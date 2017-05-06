@@ -5,7 +5,6 @@ import {Validity, Key, SubKey, UserID} from './HostAppTypes';
 const listenerQueue = Symbol('ListenerQueue');
 const port = Symbol('Port');
 
-
 class NativeOpenGpgMeClient {
 
     constructor(runtime) {
@@ -34,8 +33,8 @@ class NativeOpenGpgMeClient {
         return this.sendToHostApp("encrypt", {
             dataString: !isBytes ? data : "",
             dataBytes: isBytes ? data : null,
-            publicKeys,
-            privateKeys,
+            publicKeys: Key.wrapArray(publicKeys).map(key => key.fingerPrint),
+            privateKeys: Key.wrapArray(privateKeys).map(key => key.fingerPrint),
             armor,
             detached,
             signature
@@ -54,10 +53,26 @@ class NativeOpenGpgMeClient {
 
         return this.sendToHostApp("decrypt", {
             message,
-            publicKeys,
+            publicKeys: Key.wrapArray(publicKeys).map(key => key.fingerPrint),
             format,
             signature
         }).then(response => response.data.decrypt);
+    }
+
+    /**
+     * @param keyID
+     * @param fingerPrint
+     * @param UID
+     * @param name
+     * @param comment
+     * @param email
+     * @param secretOnly
+     * @returns {Promise.<FindKeysData>}
+     */
+    findKeys({keyID, fingerPrint, UID, name, comment, email, secretOnly = false} = {}) {
+        return this.sendToHostApp("findKeys", {
+            keyID, fingerPrint, UID, name, comment, email, secretOnly
+        }).then(response => response.data.findKeys);
     }
 
     /**

@@ -9,8 +9,9 @@ import (
 )
 
 type ResponseData struct {
-	Encrypt OpenPgpJsApi.OpenPgpJsEncryptResult `json:"encrypt"`
-	Decrypt OpenPgpJsApi.OpenPgpJsDecryptResult `json:"decrypt"`
+	Encrypt OpenPgpJsApi.EncryptResult `json:"encrypt"`
+	Decrypt OpenPgpJsApi.DecryptResult `json:"decrypt"`
+	FindKeys OpenPgpJsApi.FindKeyResult `json:"findKeys"`
 }
 
 type Response struct {
@@ -35,5 +36,5 @@ func SendItem(stdOut io.Writer, item interface{} ) (err error){
 	json.NewEncoder(&b).Encode(item);
 	binary.Write(stdOut, binary.LittleEndian, uint32(b.Len()))
 	b.WriteTo(stdOut)
-	return;
+	return
 }

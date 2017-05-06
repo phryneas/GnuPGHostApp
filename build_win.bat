@@ -10,7 +10,7 @@ set GOPATH=%~dp0
 set CGO_CFLAGS=-I%~dp0\include
 set CGO_LDFLAGS=-L%~dp0\lib
 
-go test -v github.com/proglottis/gpgme
+REM go test -v github.com/proglottis/gpgme
 go test -v HostApp NativeMessagingHost OpenPgpJsApi
 go build HostApp
 

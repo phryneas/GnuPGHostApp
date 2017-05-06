@@ -20,7 +20,7 @@ func TestLoopExecution(t *testing.T) {
 			NativeMessagingHost.Request{
 				Action: "encrypt",
 				Data: NativeMessagingHost.RequestData{
-					Encrypt: OpenPgpJsApi.OpenPgpJsEncryptRequest{DataString: "test", Armor: true, PublicKeys: []string{"1E43F132357B5AD55CECCCC3067D1766157F6495"}},
+					Encrypt: OpenPgpJsApi.EncryptRequest{DataString: "test", Armor: true, PublicKeys: []string{"1E43F132357B5AD55CECCCC3067D1766157F6495"}},
 				},
 			},
 			func(response NativeMessagingHost.Response, t *testing.T) {
@@ -34,7 +34,7 @@ func TestLoopExecution(t *testing.T) {
 			NativeMessagingHost.Request{
 				Action: "decrypt",
 				Data: NativeMessagingHost.RequestData{
-					Decrypt: OpenPgpJsApi.OpenPgpJsDecryptRequest{
+					Decrypt: OpenPgpJsApi.DecryptRequest{
 						Message: `-----BEGIN PGP MESSAGE-----
 
 hIwDRsAl1a6NFu4BA/4+anSlCSKchJbf8A+E05VEFkS0DLx823GmlpuEMk/dCv4U

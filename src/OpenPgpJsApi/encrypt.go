@@ -14,7 +14,7 @@ import (
 // unused options from the openpgp.js API:
 //passwords   //String | Array.<String> 	(optional) array of passwords or a single password to encrypt the Message
 //filename    //String 	(optional) a filename for the literal Data packet
-type OpenPgpJsEncryptRequest struct {
+type EncryptRequest struct {
 	DataString  string `json:"dataString"`      //String | Uint8Array 	text/Data to be encrypted as JavaScript binary string or Uint8Array
 	DataBytes   []byte  `json:"dataBytes"`      //String | Uint8Array 	text/Data to be encrypted as JavaScript binary string or Uint8Array
 	PublicKeys  []string `json:"publicKeys"`   //Key | Array.<Key> 	(optional) array of keys or single key, used to encrypt the Message
@@ -24,7 +24,7 @@ type OpenPgpJsEncryptRequest struct {
 	Signature   interface{} `json:"signature"`  //Signature 	(optional) a Detached Signature to add to the encrypted Message TODO
 }
 
-func (r OpenPgpJsEncryptRequest) String() string {
+func (r EncryptRequest) String() string {
 	return fmt.Sprintf("DataString: %s, DataBytes: %s, PublicKeys: %s, PrivateKeys: %s, Armor: %b, Detached: %b, Signature: %s",
 	r.DataString,
 	r.DataBytes,
@@ -35,16 +35,16 @@ func (r OpenPgpJsEncryptRequest) String() string {
 	r.Signature)
 }
 
-type OpenPgpJsEncryptResult struct {
+type EncryptResult struct {
 	Data      string `json:"data"`      // ASCII armored Message if 'Armor' is true
 	Message   []byte `json:"message"`   // full Message object if 'Armor' is false
 	Signature []byte `json:"signature"` //Detached Signature if 'Detached' is true
 }
 
-func (r OpenPgpJsEncryptRequest) Execute() (result OpenPgpJsEncryptResult, err error) {
+func (r EncryptRequest) Execute() (result EncryptResult, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			result = OpenPgpJsEncryptResult{}
+			result = EncryptResult{}
 			err = r.(error)
 		}
 	}()
