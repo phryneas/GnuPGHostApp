@@ -12,3 +12,9 @@ pkg/
 *.out
 .glide/
 .idea/
+nmh-manifest.json
+exampleWebExtension/src/background-compiled.js
+log.txt
+bin
+HostApp
+test_keys/GPGHOME

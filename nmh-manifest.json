@@ -1,9 +1,0 @@
-{
-  "name": "de.phryneas.gpg.hostapp",
-  "description": "GPG Host App",
-  "path": "C:\\Users\\weber.VOSDOM\\GoglandProjects\\GnuPGHostApp\\HostApp.exe",
-  "type": "stdio",
-  "allowed_origins": [
-    "chrome-extension://cdmcjbiccjmkjlgjahfepmhfnobpgckp/"
-  ]
-}
