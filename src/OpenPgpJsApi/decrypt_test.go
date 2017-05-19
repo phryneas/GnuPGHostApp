@@ -4,7 +4,11 @@ import (
 	"testing"
 )
 
-const encryptedTest = `-----BEGIN PGP MESSAGE-----
+const text = "test";
+
+const keyFingerPrint = "1E43F132357B5AD55CECCCC3067D1766157F6495";
+
+const encryptedAndSignedTest = `-----BEGIN PGP MESSAGE-----
 
 hIwDRsAl1a6NFu4BA/4+anSlCSKchJbf8A+E05VEFkS0DLx823GmlpuEMk/dCv4U
 uESYLDl1FZA/H/m7DAEyHVMra4NBxPCmqY3mLCHpn/C8GEuVvCYqXSDDEy72ujPG
@@ -18,19 +22,58 @@ ZGQMh/4azTesg4Tgcg==
 =/jod
 -----END PGP MESSAGE-----`
 
-func TestOpenPgpJsDecryptRequest_Execute(t *testing.T) {
-	request := DecryptRequest{Message: encryptedTest}
+const encrypted =`-----BEGIN PGP MESSAGE-----
+
+hIwDRsAl1a6NFu4BA/9TY7j+3VNzUA2wl1Used0b0btx7/7LjQulhIb939pa+ee5
+4/f2MGuwR6D37S+v972DjQHIMCE921KEcA84xV9LFD6qimZn9Y9m7B/v0V52Uqrg
+eOJUmcBtyM6lMnqomZZpigni3btV3f8h8KGVzT70Kueq/w2Gxr+o3pvC0aKbVdI/
+ARzE6XtHzjRgoeC5x+vMWymTl9WAoeSiGAJAq86kGCnbuKtJx/kbea2kgRXwOSAl
+qk+rR5zdljYqR3XrnAvM
+=vhs6
+-----END PGP MESSAGE-----
+`;
+
+const detachedSignature = `-----BEGIN PGP SIGNATURE-----
+
+iJwEAAEIAAYFAlkevLAACgkQBn0XZhV/ZJXrVQQAmGB/4zv2Ltq4M4dfcXPmMuqY
+sS0SCqF+j1agLfy2Zh4XO66RhLJZ3o0obVyv7lJKdZ7RDzf69iJa8nZdRKamVMnF
+2VifL9sOnFC0z4CipcsUkuIw7A+Azom32XQrPKf58CEzQRvnH5crkowNsSCvJlKd
+wQ1iCtA2HokiN4rLgzA=
+=58A4
+-----END PGP SIGNATURE-----`;
+
+func TestOpenPgpJsDecryptRequest_Execute_InlineSignature(t *testing.T) {
+	request := DecryptRequest{Message: encryptedAndSignedTest}
 	result, err := request.Execute()
+	t.Logf("\nresult was %#v\nerror was %+v", result, err)
 	if err != nil {
 		t.Errorf("encountered error: %s", err)
 	}
-	if result.DataString !="test" {
+	if result.DataString != text {
 		t.Errorf("decrypted text should be 'test', was '%s'", result.DataString)
 	}
-	if result.Signatures[0].Keyid != "1E43F132357B5AD55CECCCC3067D1766157F6495" {
-		t.Errorf("wrong keyid, expected 1E43F132357B5AD55CECCCC3067D1766157F6495, got %s", result.Signatures[0].Keyid)
+	if result.Signatures[0].Keyid != keyFingerPrint {
+		t.Errorf("wrong keyid, expected %s, got %s", keyFingerPrint, result.Signatures[0].Keyid)
 	}
 	if !result.Signatures[0].Valid {
-		t.Errorf("invalid signature. should not happen")
+		t.Error("invalid signature. should not happen")
+	}
+}
+
+func TestOpenPgpJsDecryptRequest_Execute_DetachedSignature(t *testing.T) {
+	request := DecryptRequest{Message: encrypted, Signature: detachedSignature}
+	result, err := request.Execute()
+	t.Logf("\nresult was %#v\nerror was %+v", result, err)
+	if err != nil {
+		t.Errorf("encountered error: %s", err)
+	}
+	if result.DataString != text {
+		t.Errorf("decrypted text should be 'test', was '%s'", result.DataString)
+	}
+	if result.Signatures[0].Keyid != keyFingerPrint {
+		t.Errorf("wrong keyid, expected %s, got %s", keyFingerPrint, result.Signatures[0].Keyid)
+	}
+	if !result.Signatures[0].Valid {
+		t.Error("invalid signature. should not happen")
 	}
 }

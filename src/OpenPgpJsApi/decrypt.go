@@ -53,11 +53,8 @@ func (r DecryptRequest) Execute() (result DecryptResult, err error) {
 	handleErr(err)
 	defer ctx.Release()
 
-	signature, err := gpgme.NewDataReader(strings.NewReader(r.Signature))
-	handleErr(err)
-	defer signature.Close()
-
-	message, err := gpgme.NewDataReader(strings.NewReader(r.Message))
+	messageReader := strings.NewReader(r.Message)
+	message, err := gpgme.NewDataReader(messageReader)
 	handleErr(err)
 	defer message.Close()
 
@@ -67,9 +64,14 @@ func (r DecryptRequest) Execute() (result DecryptResult, err error) {
 
 	var signatures []gpgme.Signature
 	if r.Signature != "" {
+		signature, err := gpgme.NewDataReader(strings.NewReader(r.Signature))
+		handleErr(err)
+		defer signature.Close()
+
 		_, signatures, err = ctx.Verify(signature, message, nil)
 		handleErr(err)
 
+		messageReader.Seek(0, io.SeekStart)
 		err = ctx.Decrypt(message, plain)
 		handleErr(err)
 	} else {
