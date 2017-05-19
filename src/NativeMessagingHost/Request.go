@@ -10,7 +10,7 @@ import (
 )
 
 type RequestData struct {
-	Encrypt OpenPgpJsApi.EncryptRequest `json:"encrypt2`
+	Encrypt OpenPgpJsApi.EncryptRequest `json:"encrypt"`
 	Decrypt OpenPgpJsApi.DecryptRequest `json:"decrypt"`
 	FindKeys OpenPgpJsApi.FindKeyRequest `json:"findKeys"`
 }
