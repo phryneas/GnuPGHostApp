@@ -36,9 +36,9 @@ func (r EncryptRequest) String() string {
 }
 
 type EncryptResult struct {
-	Data      string `json:"data"`      // ASCII armored Message if 'Armor' is true
-	Message   []byte `json:"message"`   // full Message object if 'Armor' is false
-	Signature []byte `json:"signature"` //Detached Signature if 'Detached' is true
+	DataString string `json:"dataString"`      // ASCII armored Message if 'Armor' is true
+	DataBytes  []byte `json:"dataBytes"`   // full Message object if 'Armor' is false
+	Signature  []byte `json:"signature"` //Detached Signature if 'Detached' is true
 }
 
 func (r EncryptRequest) Execute() (result EncryptResult, err error) {
@@ -88,9 +88,9 @@ func (r EncryptRequest) Execute() (result EncryptResult, err error) {
 	io.Copy(buf, cipher)
 
 	if r.Armor {
-		result.Data = buf.String()
+		result.DataString = buf.String()
 	} else {
-		result.Message = buf.Bytes()
+		result.DataBytes = buf.Bytes()
 	}
 
 	return

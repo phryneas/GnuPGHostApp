@@ -9,7 +9,7 @@ module.exports = function (grunt) {
         },
         watch: {
             scripts: {
-                files: [".src/background.js"],
+                files: ["./src/background.js", "../node_module/dist/module.js"],
                 tasks: ["browserify:dist"]
             },
         },

@@ -1,6 +1,6 @@
 import "babel-polyfill";
 import ListenerQueue from './ListenerQueue';
-import {Validity, Key, SubKey, UserID} from './HostAppTypes';
+import {Validity, Key, SubKey, UserID, EncryptedData, DecryptedData} from './HostAppTypes';
 
 const listenerQueue = Symbol('ListenerQueue');
 const port = Symbol('Port');
@@ -32,31 +32,32 @@ class NativeOpenGpgMeClient {
         let isBytes = data instanceof Uint8Array;
         return this.sendToHostApp("encrypt", {
             dataString: !isBytes ? data : "",
-            dataBytes: isBytes ? data : null,
+            dataBytes: isBytes ? Array.from(data) : null,
             publicKeys: Key.wrapArray(publicKeys).map(key => key.fingerPrint),
             privateKeys: Key.wrapArray(privateKeys).map(key => key.fingerPrint),
             armor,
             detached,
             signature
-        }).then(response => response.data.encrypt);
+        }).then(response => EncryptedData.wrap(response.data.encrypt));
     }
 
     /**
-     * @param {string|Uint8Array} data TODO: Uint8Array
+     * @param {string|Uint8Array} data
      * @param publicKeys
      * @param format
      * @param signature
      * @returns {Promise.<DecryptedData>}
      */
-    decrypt({message, publicKeys, privateKey, format, signature} = {}) {
-        let isBytes = message instanceof Uint8Array;
+    decrypt({data, publicKeys, privateKey, format, signature} = {}) {
+        let isBytes = data instanceof Uint8Array;
 
         return this.sendToHostApp("decrypt", {
-            message,
+            dataString: !isBytes ? data : "",
+            dataBytes: isBytes ? Array.from(data) : null,
             publicKeys: Key.wrapArray(publicKeys).map(key => key.fingerPrint),
-            format,
+            format: format || 'utf8',
             signature
-        }).then(response => response.data.decrypt);
+        }).then(response => DecryptedData.wrap(response.data.decrypt));
     }
 
     /**

@@ -25,8 +25,8 @@ func TestLoopExecution(t *testing.T) {
 			},
 			func(response NativeMessagingHost.Response, t *testing.T) {
 				result := response.Data.Encrypt
-				if !strings.Contains(result.Data, "BEGIN PGP MESSAGE") {
-					t.Errorf("armored encrypted data should contain PGP header, was '%s'", result.Data)
+				if !strings.Contains(result.DataString, "BEGIN PGP MESSAGE") {
+					t.Errorf("armored encrypted data should contain PGP header, was '%s'", result.DataString)
 				}
 			},
 		},
@@ -35,7 +35,7 @@ func TestLoopExecution(t *testing.T) {
 				Action: "decrypt",
 				Data: NativeMessagingHost.RequestData{
 					Decrypt: OpenPgpJsApi.DecryptRequest{
-						Message: `-----BEGIN PGP MESSAGE-----
+						DataString: `-----BEGIN PGP MESSAGE-----
 
 hIwDRsAl1a6NFu4BA/4+anSlCSKchJbf8A+E05VEFkS0DLx823GmlpuEMk/dCv4U
 uESYLDl1FZA/H/m7DAEyHVMra4NBxPCmqY3mLCHpn/C8GEuVvCYqXSDDEy72ujPG

@@ -12,7 +12,7 @@ func TestOpenPgpJsEncryptRequest_Execute(t *testing.T) {
 		t.Errorf("encrypt request errored: %s", err)
 	}
 
-	decrypt := DecryptRequest{Message: result.Data, Format: "utf8"}
+	decrypt := DecryptRequest{DataString: result.DataString, Format: "utf8"}
 	decrypted, err := decrypt.Execute()
 	if err != nil {
 		t.Errorf("decrypting encrypted data errored: %s \n request was %s", err, decrypt)

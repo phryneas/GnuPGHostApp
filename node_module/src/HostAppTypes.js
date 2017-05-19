@@ -1,3 +1,37 @@
+class Wrappable {
+    constructor(data) {
+        Object.assign(this, data);
+    }
+
+    /**
+     * @param {(Wrappable|Object)} item
+     * @returns {Wrappable}
+     */
+    static wrap(item = {}) {
+        return typeof item instanceof this ? item : new this(item);
+    }
+
+    /**
+     * @param {Array.<Wrappable|Object>} arr
+     * @returns {Array.<Wrappable>}
+     */
+    static wrapArray(arr = []) {
+        if (!Array.isArray(arr)) {
+            return this.wrapArray([arr]);
+        }
+        return arr.filter(item => typeof item !== "undefined").map(this.wrap.bind(this));
+    }
+}
+
+function base64ToUint8Array(base64){
+    let raw = window.atob(base64);
+    let array = new Uint8Array(new ArrayBuffer(raw.length));
+    for( let i = 0; i < raw.length; i++) {
+        array[i] = raw.charCodeAt(i);
+    }
+    return array;
+}
+
 /**
  * @typedef {Object} HostResponse
  * @property {string} status
@@ -13,18 +47,35 @@
  */
 
 /**
- * @typedef {Object} EncryptedData
- * @property {string} data
- * @property {Uint8Array} message
+ * @property {string} dataString
+ * @property {Uint8Array} dataBytes
  * @property {Uint8Array} signature
  */
+export class EncryptedData extends Wrappable {
+    constructor() {
+        super(...arguments);
+        if (this.dataBytes && typeof(this.dataBytes) === 'string') {
+            this.dataBytes = base64ToUint8Array(this.dataBytes);
+        }
+        if (this.signature && typeof(this.signature) === 'string') {
+            this.signature = base64ToUint8Array(this.signature);
+        }
+    }
+}
 
 /**
- * @typedef {Object} DecryptedData
  * @property {string} dataString
  * @property {Uint8Array} dataBytes
  * @property {Array.<{keyid:string, valid:boolean}>} signatures
  */
+export class DecryptedData extends Wrappable {
+    constructor() {
+        super(...arguments);
+        if (this.dataBytes && typeof(this.dataBytes) === 'string') {
+            this.dataBytes = base64ToUint8Array(this.dataBytes);
+        }
+    }
+}
 
 /** @typedef {string} FingerPrint */
 
@@ -43,33 +94,6 @@ export const Validity = {
     ValidityFull: 4,
     ValidityUltimate: 5
 };
-
-
-export class Wrappable {
-    constructor(data) {
-        Object.assign(this, data);
-    }
-
-    /**
-     * @param {(Wrappable|Object)} item
-     * @returns {Wrappable}
-     */
-    static wrap(item = {}) {
-        return typeof item instanceof this ? item : new this(item);
-    }
-
-    /**
-     * @param {Array.<Wrappable|Object>} arr
-     * @returns {Array.<Wrappable>}
-     */
-    static wrapArray(arr = []) {
-        if (!Array.isArray(arr)){
-            return this.wrapArray([arr]);
-        }
-        return arr.filter(item => typeof item !== "undefined").map(this.wrap.bind(this));
-    }
-}
-
 
 /**
  * @property {boolean} revoked
@@ -91,7 +115,7 @@ export class Key extends Wrappable {
      * @param {Array.<Object|UserID>} userIDs
      */
     constructor({subKeys, userIDs} = {}) {
-        super();
+        super(...arguments);
         if (this.constructor === Key) {
             this.subKeys = SubKey.wrapArray(subKeys);
             this.userIDs = UserID.wrapArray(userIDs);

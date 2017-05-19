@@ -43,7 +43,7 @@ wQ1iCtA2HokiN4rLgzA=
 -----END PGP SIGNATURE-----`;
 
 func TestOpenPgpJsDecryptRequest_Execute_InlineSignature(t *testing.T) {
-	request := DecryptRequest{Message: encryptedAndSignedTest}
+	request := DecryptRequest{DataString: encryptedAndSignedTest, Format: "utf8"}
 	result, err := request.Execute()
 	t.Logf("\nresult was %#v\nerror was %+v", result, err)
 	if err != nil {
@@ -61,7 +61,7 @@ func TestOpenPgpJsDecryptRequest_Execute_InlineSignature(t *testing.T) {
 }
 
 func TestOpenPgpJsDecryptRequest_Execute_DetachedSignature(t *testing.T) {
-	request := DecryptRequest{Message: encrypted, Signature: detachedSignature}
+	request := DecryptRequest{DataString: encrypted, Signature: detachedSignature, Format: "utf8"}
 	result, err := request.Execute()
 	t.Logf("\nresult was %#v\nerror was %+v", result, err)
 	if err != nil {

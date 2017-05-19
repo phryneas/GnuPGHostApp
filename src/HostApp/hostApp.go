@@ -43,7 +43,7 @@ func LoopExecution(stdin io.Reader, stdout io.Writer) (err error) {
 		return;
 	}
 	if logger != nil {
-		logger.Printf("received request: '%s'", request)
+		logger.Printf("received request: '%#v'", request)
 	}
 
 	response := NativeMessagingHost.Response{}
@@ -68,7 +68,7 @@ func LoopExecution(stdin io.Reader, stdout io.Writer) (err error) {
 	}
 
 	if logger != nil {
-		logger.Printf("sending response: '%s'", response)
+		logger.Printf("sending response: '%#v'", response)
 	}
 	err = response.Send(stdout)
 	return err;

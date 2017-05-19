@@ -5,6 +5,7 @@ import (
 	"io"
 	"strings"
 	"bytes"
+	"github.com/pkg/errors"
 )
 
 // @see https://openpgpjs.org/openpgpjs/doc/module-openpgp.html#.decrypt
@@ -14,12 +15,14 @@ import (
 // sessionKey //Object 	(optional) session key in the form: { Data:Uint8Array, algorithm:String }
 // password   string //String 	(optional) single password to decrypt the Message
 //
+const (
+	UTF8 = "utf8"
+	BINARY = "binary"
+)
 
 type DecryptRequest struct {
-	Message string  `json:"message"`
-	//Message 	the Message object with the encrypted Data
-	// passed as Armored String
-	// TODO: allow for byte[] data
+	DataString  string `json:"dataString"`
+	DataBytes   []byte  `json:"dataBytes"`
 	Format string `json:"format"`
 	//String 	(optional) return Data Format either as 'utf8' or 'binary'
 	// one of 'utf8' or 'binary'
@@ -53,7 +56,13 @@ func (r DecryptRequest) Execute() (result DecryptResult, err error) {
 	handleErr(err)
 	defer ctx.Release()
 
-	messageReader := strings.NewReader(r.Message)
+
+	var messageReader ReaderSeeker
+	if (r.DataBytes != nil){
+		messageReader = bytes.NewReader(r.DataBytes)
+	} else {
+		messageReader = strings.NewReader(r.DataString)
+	}
 	message, err := gpgme.NewDataReader(messageReader)
 	handleErr(err)
 	defer message.Close()
@@ -80,6 +89,7 @@ func (r DecryptRequest) Execute() (result DecryptResult, err error) {
 	}
 
 	for _, signature := range signatures {
+		// TODO: hand out full signature object signatures and let javascript
 		validity := (signature.Summary & gpgme.SigSumGreen) != 0
 		result.Signatures = append(result.Signatures, DecryptSignature{Keyid: signature.Fingerprint, Valid: validity})
 	}
@@ -87,7 +97,13 @@ func (r DecryptRequest) Execute() (result DecryptResult, err error) {
 	plain.Seek(0, gpgme.SeekSet)
 	buf := new(bytes.Buffer)
 	io.Copy(buf, plain)
-	result.DataString = buf.String()
+	if r.Format == BINARY {
+		result.DataBytes = buf.Bytes()
+	} else if r.Format == UTF8 {
+		result.DataString = buf.String()
+	} else {
+		handleErr(errors.New("unknown format"))
+	}
 
 	return
 }
