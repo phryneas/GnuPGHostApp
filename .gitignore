@@ -16,5 +16,5 @@ nmh-manifest.json
 exampleWebExtension/src/background-compiled.js
 log.txt
 bin
-HostApp
+/HostApp
 test_keys/GPGHOME
