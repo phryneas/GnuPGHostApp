@@ -6,19 +6,23 @@ module.exports = function (grunt) {
                     browserifyOptions: {
                         standalone: 'dist'
                     },
-                    transform: [["babelify", {presets: [["es2015"]]}]],
-                    plugin: [ 'browserify-derequire' ]
                 },
                 files: {
                     "./dist/module.js": ["./src/NativeOpenGpgMeClient.js"],
                 }
             },
             specs: {
-                options: {
-                    transform: [["babelify", {presets: [["es2015"]]}]]
-                },
                 files: {
                     "./dist/specs.js": ["specs/**/*.spec.js"],
+                }
+            },
+            options: {
+                configure: function (bundler) {
+                    bundler.plugin(require('tsify'));
+                    bundler.transform(require('babelify'), {
+                        presets: ['es2015'],
+                        extensions: ['.ts', '.js']
+                    });
                 }
             }
         },

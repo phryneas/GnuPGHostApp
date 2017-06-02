@@ -37,5 +37,11 @@
     "grunt-browserify": "^5.0.0",
     "grunt-contrib-jasmine": "^1.1.0",
     "grunt-contrib-watch": "^1.0.0"
+  },
+  "dependencies": {
+    "@types/chrome": "0.0.46",
+    "browserify": "^14.4.0",
+    "tsify": "^3.0.1",
+    "typescript": "^2.3.4"
   }
 }

@@ -1,19 +1,14 @@
-/**
- * @property {Array.<function>} queue
- */
 export default class ListenerQueue {
-    constructor() {
-        this.queue = [];
-    }
+    private queue: Function[] = [];
 
-    listener(...args) {
+    listener(...args: any[]) {
         if (this.queue.length === 0)
             return;
         let callback = this.queue.shift();
         callback(...args);
     }
 
-    queueListener(listener) {
+    queueListener(listener: Function) {
         this.queue.push(listener);
     }
 }
