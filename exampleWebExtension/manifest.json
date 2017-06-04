@@ -9,7 +9,7 @@
   "browser_action": {
   },
   "background": {
-    "scripts": ["src/background-compiled.js"]
+    "scripts": ["dist/background.js"]
   },
   "permissions": [
     "nativeMessaging"

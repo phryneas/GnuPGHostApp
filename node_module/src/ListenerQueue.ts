@@ -1,14 +1,18 @@
-export default class ListenerQueue {
-    private queue: Function[] = [];
+import {HostResponse} from './HostAppTypes';
 
-    listener(...args: any[]) {
+export type listenerFunction = (response: HostResponse.HostResponse) => void ;
+
+export default class ListenerQueue {
+    private queue: listenerFunction[] = [];
+
+    listener(response: HostResponse.HostResponse) {
         if (this.queue.length === 0)
             return;
         let callback = this.queue.shift();
-        callback(...args);
+        callback(response);
     }
 
-    queueListener(listener: Function) {
+    queueListener(listener: listenerFunction) {
         this.queue.push(listener);
     }
 }

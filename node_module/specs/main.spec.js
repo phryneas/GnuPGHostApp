@@ -86,7 +86,7 @@ describe("NativeOpenGpgMeClient", () => {
         gpg.decrypt({
             message: encrypted,
             public_keys: [testKeyFingerPrint],
-            format: "utf8"
+            returnFormat: "utf8"
         }).then((result) => {
             expect(result.data_string).toBe(testString);
         }).then(finished);

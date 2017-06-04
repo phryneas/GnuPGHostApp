@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "a library using native messaging with a host app to directly use the gnupg made easy library",
   "main": "dist/module.js",
+  "types": "dist/ts/native-opengpgme-client.d.ts",
   "scripts": {
     "test": "grunt test",
     "build": "grunt build",
@@ -28,20 +29,24 @@
     "url": "https://todo"
   },
   "homepage": "https://todo",
+  "dependencies": {
+    "@types/chrome": "0.0.46",
+    "@types/es6-promise": "0.0.32",
+    "@types/text-encoding": "0.0.30"
+  },
   "devDependencies": {
     "babel-polyfill": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.3.0",
+    "browserify": "^14.4.0",
     "browserify-derequire": "^0.9.4",
+    "es6-promise": "^4.1.0",
     "grunt": "^1.0.1",
     "grunt-browserify": "^5.0.0",
     "grunt-contrib-jasmine": "^1.1.0",
-    "grunt-contrib-watch": "^1.0.0"
-  },
-  "dependencies": {
-    "@types/chrome": "0.0.46",
-    "browserify": "^14.4.0",
-    "tsify": "^3.0.1",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-dts-bundle": "^0.3.0",
+    "grunt-ts": "^6.0.0-beta.16",
     "typescript": "^2.3.4"
   }
 }

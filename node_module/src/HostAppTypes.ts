@@ -1,12 +1,4 @@
-function base64ToUint8Array(base64: string): Uint8Array {
-    let raw = window.atob(base64);
-    let array = new Uint8Array(new ArrayBuffer(raw.length));
-    for (let i = 0; i < raw.length; i++) {
-        array[i] = raw.charCodeAt(i);
-    }
-    return array;
-}
-
+import Encodings from './Encodings';
 
 export namespace HostResponse {
     export interface HostResponse {
@@ -102,7 +94,7 @@ export namespace HostRequest {
     export type GenericData = EncryptData | DecryptData | FindKeysData;
     export interface EncryptData {
         dataString?: string,
-        dataBytes?: number[],
+        dataBytes?: string,
         publicKeys: string[],
         privateKeys: string[],
         armor: boolean,
@@ -111,19 +103,19 @@ export namespace HostRequest {
     }
     export interface DecryptData {
         dataString?: string,
-        dataBytes?: number[] | null,
+        dataBytes?: string,
         publicKeys: string[],
         format: HostRequest.DataType,
         signature: string
     }
     export interface FindKeysData {
-        keyID: string,
-        fingerPrint: string,
-        UID: string,
-        name: string,
-        comment: string,
-        email: string,
-        secretOnly: boolean
+        keyID?: string,
+        fingerPrint?: string,
+        UID?: string,
+        name?: string,
+        comment?: string,
+        email?: string,
+        secretOnly?: boolean
     }
 
     export type DataType = "utf8" | "binary";
@@ -137,10 +129,10 @@ export class EncryptedData {
     constructor(data: HostResponse.EncryptedData) {
         this.dataString = data.dataString;
         if (data.dataBytes) {
-            this.dataBytes = base64ToUint8Array(data.dataBytes);
+            this.dataBytes = Encodings.base64ToUint8Array(data.dataBytes);
         }
         if (data.signature) {
-            this.signature = base64ToUint8Array(data.signature);
+            this.signature = Encodings.base64ToUint8Array(data.signature);
         }
     }
 }
@@ -156,7 +148,7 @@ export class DecryptedData {
         this.signatures = data.signatures;
 
         if (data.dataBytes) {
-            this.dataBytes = base64ToUint8Array(data.dataBytes);
+            this.dataBytes = Encodings.base64ToUint8Array(data.dataBytes);
         }
     }
 }

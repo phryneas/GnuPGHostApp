@@ -1,84 +1,84 @@
-import "babel-polyfill";
 import ListenerQueue from './ListenerQueue';
-import {Key, EncryptedData, DecryptedData, HostResponse, HostRequest} from './HostAppTypes';
+import {Key, EncryptedData, DecryptedData, FindKeysData, HostResponse, HostRequest} from './HostAppTypes';
+import Encodings from './Encodings';
 
-import GenericData = HostRequest.GenericData;
-
-class NativeOpenGpgMeClient {
+export default class NativeOpenGpgMeClient {
 
     private listenerQueue: ListenerQueue;
     private port: chrome.runtime.Port;
 
-    constructor(runtime: typeof chrome.runtime) {
+    constructor(private runtime: typeof chrome.runtime, private logger?: Console) {
         this.listenerQueue = new ListenerQueue();
         this.port = runtime.connectNative('de.phryneas.gpg.hostapp');
-        console.info("hostApp connected");
+        this.logger && this.logger.info("hostApp connected");
 
-        this.port.onDisconnect.addListener(function () {
-            console.info("hostApp disconnected");
+        this.port.onDisconnect.addListener(() => {
+            this.logger && this.logger.info("hostApp disconnected");
         });
 
         this.port.onMessage.addListener(this.listenerQueue.listener.bind(this.listenerQueue));
     }
 
-    encrypt({
-                data,
-                publicKeys = [],
-                privateKeys = [],
-                armor = true,
-                detached = false,
-                signature = null
-            }: {
-                data: string | Uint8Array,
-                publicKeys: (string | Key)[],
-                privateKeys: (string | Key)[],
-                armor: boolean,
-                detached: boolean,
-                signature?: Uint8Array
-            }) {
+    public encrypt({
+                       data,
+                       encryptFor,
+                       signWith = [],
+                       armor = true,
+                       detached = false,
+                       signature = null
+                   }: {
+        data: string | Uint8Array,
+        encryptFor: (string | Key)[],
+        signWith?: (string | Key)[],
+        armor?: boolean,
+        detached?: boolean,
+        signature?: Uint8Array
+    }) {
         return this.sendToHostApp({
             action: "encrypt",
             data: {
                 encrypt: {
-                    dataString: typeof data === "string" ? data : "",
-                    dataBytes: data instanceof Uint8Array ? (<any>Array).from(data) : null, // TODO better typing
-                    publicKeys: publicKeys.map(key => typeof key === "string" ? key : key.fingerPrint),
-                    privateKeys: privateKeys.map(key => typeof key === "string" ? key : key.fingerPrint),
+                    dataString: typeof data === "string" ? data : null,
+                    dataBytes: data instanceof Uint8Array ? Encodings.uint8ArrayToBase64(data) : null,
+                    publicKeys: encryptFor.map(key => typeof key === "string" ? key : key.fingerPrint),
+                    privateKeys: signWith.map(key => typeof key === "string" ? key : key.fingerPrint),
                     armor,
                     detached,
                     signature
                 }
             }
-        }).then(response => new EncryptedData(response.data.encrypt));
+        }).then((response: HostResponse.HostResponse) => new EncryptedData(response.data.encrypt));
     }
 
-    decrypt({
-                data,
-                publicKeys,
-                format,
-                signature
-            }: {
-                data: string | Uint8Array,
-                publicKeys: (string | Key)[],
-                format: HostRequest.DataType,
-                signature: string
-            }) {
+    public decrypt({
+                       data,
+                       verifySignatures,
+                       returnFormat = "utf8",
+                       detachedSignature
+                   }: {
+        data: string | Uint8Array,
+        verifySignatures: (string | Key)[],
+        returnFormat?: HostRequest.DataType,
+        detachedSignature?: string
+    }) {
+
+        let decryptData: HostRequest.DecryptData = {
+            dataString: typeof data === "string" ? data : null,
+            dataBytes: data instanceof Uint8Array ? Encodings.uint8ArrayToBase64(data) : null,
+            publicKeys: verifySignatures.map(key => typeof key === "string" ? key : key.fingerPrint),
+            format: returnFormat,
+            signature: detachedSignature
+        };
 
         return this.sendToHostApp({
             action: "decrypt",
             data: {
-                decrypt: {
-                    dataString: typeof data === "string" ? data : "",
-                    dataBytes: data instanceof Uint8Array ? (<any>Array).from(data) : null, // TODO better typing
-                    publicKeys: publicKeys.map(key => typeof key === "string" ? key : key.fingerPrint),
-                    format,
-                    signature
-                }
+                decrypt: decryptData
             }
-        }).then(response => new DecryptedData(response.data.decrypt));
+        }).then((response: HostResponse.HostResponse) => new DecryptedData(response.data.decrypt));
     }
 
-    findKeys({keyID, fingerPrint, UID, name, comment, email, secretOnly = false}: HostRequest.FindKeysData): Promise<HostResponse.FindKeysData> {
+    public findKeys({keyID, fingerPrint, UID, name, comment, email, secretOnly = false}: HostRequest.FindKeysData): Promise<FindKeysData> {
         return this.sendToHostApp({
             action: "findKeys",
             data: {
@@ -91,13 +91,13 @@ class NativeOpenGpgMeClient {
                     secretOnly
                 }
             }
-        }).then(response => response.data.findKeys);
+        }).then((response: HostResponse.HostResponse) => new FindKeysData(response.data.findKeys));
     }
 
     sendToHostApp(request: HostRequest.HostRequest): Promise<HostResponse.HostResponse> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve: (response: HostResponse.HostResponse) => void, reject: (error: string) => void) => {
             this.listenerQueue.queueListener((response: HostResponse.HostResponse) => {
-                console.info('received from HostApp', response);
+                this.logger && this.logger.info('received from HostApp', response);
                 if (response.status === "ok") {
                     resolve(response);
                 } else {
@@ -105,12 +105,8 @@ class NativeOpenGpgMeClient {
                 }
             });
 
-            console.info('sending to HostApp', request);
+            this.logger && this.logger.info('sending to HostApp', request);
             this.port.postMessage(request);
         });
     }
 }
-
-export {NativeOpenGpgMeClient};
-export * from './HostAppTypes';
-export default NativeOpenGpgMeClient;
