@@ -2,18 +2,24 @@ import {default as NativeOpenGpgMeClient, FindKeysData, Key} from 'native-opengp
 
 let browser = (<any>window).browser || window.chrome;
 const gpg = new NativeOpenGpgMeClient(browser.runtime, console);
+gpg.connect('de.phryneas.gpg.hostapp');
+gpg.exportPubKeys("1E43F132357B5AD55CECCCC3067D1766157F6495").then(log);
 
-function log<T>(x: T) : T {
+
+
+function log<T>(x: T): T {
     console.log(x);
     return x;
 }
 
 browser.browserAction.onClicked.addListener(() =>
-    gpg.findKeys({email: "gnupghostapp_tests@example.com"})
-        .then((result: FindKeysData) => result[Object.keys(result)[0]])
+    gpg.findKeys({
+        email: "gnupghostapp_tests@example.com",
+        secretOnly: false
+    }).then((result: FindKeysData) => result[Object.keys(result)[0]])
         .then((key: Key) => gpg.encrypt({
                 data: "das ist ein Test",
-                encryptFor:   [key],
+                encryptFor: [key],
                 signWith: [key],
                 armor: false
             })
@@ -26,7 +32,7 @@ browser.browserAction.onClicked.addListener(() =>
             })
         )
         .then(log)
-        .catch(error => {
+        .catch((error: any) => {
             console.error(error)
         })
 );

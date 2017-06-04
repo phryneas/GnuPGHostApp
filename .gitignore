@@ -19,3 +19,4 @@ bin
 /HostApp
 test_keys/GPGHOME
 .tscache
+*~

@@ -11,6 +11,7 @@ export namespace HostResponse {
         encrypt?: EncryptedData;
         decrypt?: DecryptedData;
         findKeys?: FindKeysData;
+        exportPublicKeys?: ExportPublicKeysData;
     }
 
     export interface EncryptedData {
@@ -57,6 +58,10 @@ export namespace HostResponse {
         [key: string]: Key
     }
 
+    export interface ExportPublicKeysData {
+        keyBlock: string
+    }
+
     export interface Key {
         revoked: boolean;
         expired: boolean;
@@ -88,9 +93,10 @@ export namespace HostRequest {
             encrypt?: EncryptData,
             decrypt?: DecryptData,
             findKeys?: FindKeysData
+            exportPublicKeys?: ExportPublicKeysData
         }
     }
-    export type Action = "decrypt" | "encrypt" | "findKeys" | "test";
+    export type Action = "decrypt" | "encrypt" | "findKeys" | "exportPublicKeys" | "test";
     export type GenericData = EncryptData | DecryptData | FindKeysData;
     export interface EncryptData {
         dataString?: string,
@@ -116,6 +122,9 @@ export namespace HostRequest {
         comment?: string,
         email?: string,
         secretOnly: boolean
+    }
+    export interface ExportPublicKeysData {
+        pattern: string
     }
 
     export type DataType = "utf8" | "binary";

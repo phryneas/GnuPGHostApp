@@ -55,6 +55,8 @@ func LoopExecution(stdin io.Reader, stdout io.Writer) (err error) {
 		response.Data.Encrypt, err = request.Data.Encrypt.Execute()
 	case "findKeys":
 		response.Data.FindKeys, err = request.Data.FindKeys.Execute()
+	case "exportPublicKeys":
+		response.Data.ExportPublicKeys, err = request.Data.ExportPublicKeys.Execute()
 	case "test":
 		response.Message = "test"
 	default:

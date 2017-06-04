@@ -4,19 +4,30 @@ import Encodings from './Encodings';
 
 export default class NativeOpenGpgMeClient {
 
-    private listenerQueue: ListenerQueue;
-    private port: chrome.runtime.Port;
+    private listenerQueue: ListenerQueue = new ListenerQueue();
+    private port: chrome.runtime.Port = null;
 
     constructor(private runtime: typeof chrome.runtime, private logger?: Console) {
-        this.listenerQueue = new ListenerQueue();
-        this.port = runtime.connectNative('de.phryneas.gpg.hostapp');
-        this.logger && this.logger.info("hostApp connected");
+    }
 
-        this.port.onDisconnect.addListener(() => {
-            this.logger && this.logger.info("hostApp disconnected");
+    public connect(application: string = 'de.phryneas.gpg.hostapp') {
+        if (this.port != null) {
+            this.port.disconnect();
+        }
+        this.port = this.runtime.connectNative(application);
+        this.logger && this.logger.info("hostApp connected to %s", application);
+
+
+        this.port.onDisconnect.addListener((p: chrome.runtime.Port) => {
+            this.port = null;
+            this.logger && this.logger.info("hostApp disconnected", (<any>p).error || chrome.runtime.lastError);
         });
 
         this.port.onMessage.addListener(this.listenerQueue.listener.bind(this.listenerQueue));
+    }
+
+    get connected() {
+        return this.port != null;
     }
 
     public encrypt({
@@ -99,6 +110,13 @@ export default class NativeOpenGpgMeClient {
             action: "findKeys",
             data: {findKeys: findKeysData}
         }).then((response: HostResponse.HostResponse) => new FindKeysData(response.data.findKeys));
+    }
+
+    public exportPublicKeys(pattern: string): Promise<HostResponse.ExportPublicKeysData> {
+        return this.sendToHostApp({
+            action: "exportPublicKeys",
+            data: {exportPublicKeys: {pattern}}
+        }).then((response: HostResponse.HostResponse) => response.data.exportPublicKeys);
     }
 
     sendToHostApp(request: HostRequest.HostRequest): Promise<HostResponse.HostResponse> {

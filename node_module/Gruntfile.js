@@ -17,14 +17,14 @@ module.exports = function (grunt) {
                 options: {
                     name: 'native-opengpgme-client',
                     main: './dist/ts/native-opengpgme-client.d.ts',
-                    out: '../module.d.ts'
+                    out: '../native-opengpgme-client.d.ts'
                 }
             }
         },
         browserify: {
             dist: {
                 files: {
-                    "./dist/module.js": ["dist/ts/*.js"],
+                    "./dist/native-opengpgme-client.js": ["dist/ts/*.js"],
                 },
                 options: {
                     browserifyOptions: {

@@ -1,5 +1,7 @@
 [ -z "$1" ] && { echo please pass your extension id as first parameter; exit 1;  }
 
+command -v cygpath >/dev/null 2>&1 && PWD=$(cygpath -a -m "$PWD")
+
 cat <<EOF > nmh-manifest.json
 {
   "name": "de.phryneas.gpg.hostapp",

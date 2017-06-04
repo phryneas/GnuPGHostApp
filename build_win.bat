@@ -11,9 +11,9 @@ set CGO_CFLAGS=-I%~dp0\include
 set CGO_LDFLAGS=-L%~dp0\lib
 
 REM go test -v github.com/proglottis/gpgme
-go test -v HostApp NativeMessagingHost OpenPgpJsApi
+REM go test -v HostApp NativeMessagingHost OpenPgpJsApi
 go build HostApp
 
 echo Build complete
 
-pause
+REM pause

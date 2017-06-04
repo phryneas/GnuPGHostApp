@@ -13,6 +13,7 @@ type RequestData struct {
 	Encrypt OpenPgpJsApi.EncryptRequest `json:"encrypt"`
 	Decrypt OpenPgpJsApi.DecryptRequest `json:"decrypt"`
 	FindKeys OpenPgpJsApi.FindKeyRequest `json:"findKeys"`
+	ExportPublicKeys OpenPgpJsApi.ExportPublicKeysRequest `json:"exportPublicKeys"`
 }
 
 type Request struct {

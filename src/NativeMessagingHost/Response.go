@@ -12,6 +12,7 @@ type ResponseData struct {
 	Encrypt OpenPgpJsApi.EncryptResult `json:"encrypt"`
 	Decrypt OpenPgpJsApi.DecryptResult `json:"decrypt"`
 	FindKeys OpenPgpJsApi.FindKeyResult `json:"findKeys"`
+	ExportPublicKeys OpenPgpJsApi.ExportPublicKeysResult `json:"exportPublicKeys"`
 }
 
 type Response struct {

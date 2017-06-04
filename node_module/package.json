@@ -2,7 +2,7 @@
   "name": "native-opengpgme-client",
   "version": "0.0.1",
   "description": "a library using native messaging with a host app to directly use the gnupg made easy library",
-  "main": "dist/module.js",
+  "main": "dist/native-opengpgme-client.js",
   "types": "dist/ts/native-opengpgme-client.d.ts",
   "scripts": {
     "test": "grunt test",

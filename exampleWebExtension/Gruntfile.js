@@ -24,7 +24,7 @@ module.exports = function (grunt) {
         },
         watch: {
             scripts: {
-                files: ["./src/background.ts", "../node_module/dist/module.js"],
+                files: ["./src/background.ts", "../node_module/dist/native-opengpgme-client.js"],
                 tasks: ["build"]
             },
         },
