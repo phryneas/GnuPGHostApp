@@ -34,19 +34,19 @@ export default class NativeOpenGpgMeClient {
         detached?: boolean,
         signature?: Uint8Array
     }) {
+        let encryptData: HostRequest.EncryptData = {
+            dataString: typeof data === "string" ? data : null,
+            dataBytes: data instanceof Uint8Array ? Encodings.uint8ArrayToBase64(data) : null,
+            publicKeys: encryptFor.map(key => typeof key === "string" ? key : key.fingerPrint),
+            privateKeys: signWith.map(key => typeof key === "string" ? key : key.fingerPrint),
+            armor,
+            detached,
+            signature
+        };
+
         return this.sendToHostApp({
             action: "encrypt",
-            data: {
-                encrypt: {
-                    dataString: typeof data === "string" ? data : null,
-                    dataBytes: data instanceof Uint8Array ? Encodings.uint8ArrayToBase64(data) : null,
-                    publicKeys: encryptFor.map(key => typeof key === "string" ? key : key.fingerPrint),
-                    privateKeys: signWith.map(key => typeof key === "string" ? key : key.fingerPrint),
-                    armor,
-                    detached,
-                    signature
-                }
-            }
+            data: {encrypt: encryptData}
         }).then((response: HostResponse.HostResponse) => new EncryptedData(response.data.encrypt));
     }
 
@@ -72,25 +72,32 @@ export default class NativeOpenGpgMeClient {
 
         return this.sendToHostApp({
             action: "decrypt",
-            data: {
-                decrypt: decryptData
-            }
+            data: {decrypt: decryptData}
         }).then((response: HostResponse.HostResponse) => new DecryptedData(response.data.decrypt));
     }
 
-    public findKeys({keyID, fingerPrint, UID, name, comment, email, secretOnly = false}: HostRequest.FindKeysData): Promise<FindKeysData> {
+    public findKeys({
+                        keyID,
+                        fingerPrint,
+                        UID,
+                        name,
+                        comment,
+                        email,
+                        secretOnly = false
+                    }: HostRequest.FindKeysData): Promise<FindKeysData> {
+        let findKeysData: HostRequest.FindKeysData = {
+            keyID,
+            fingerPrint,
+            UID,
+            name,
+            comment,
+            email,
+            secretOnly
+        };
+
         return this.sendToHostApp({
             action: "findKeys",
-            data: {
-                findKeys: {
-                    keyID,
-                    fingerPrint,
-                    UID, name,
-                    comment,
-                    email,
-                    secretOnly
-                }
-            }
+            data: {findKeys: findKeysData}
         }).then((response: HostResponse.HostResponse) => new FindKeysData(response.data.findKeys));
     }
 

@@ -115,7 +115,7 @@ export namespace HostRequest {
         name?: string,
         comment?: string,
         email?: string,
-        secretOnly?: boolean
+        secretOnly: boolean
     }
 
     export type DataType = "utf8" | "binary";
